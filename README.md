@@ -140,8 +140,9 @@ Mozilla Public License 2.0 — use freely, modify, share. Attribution appreciate
 ## 🔗 Links
 
 - [Ocean View App](https://yaroslavmak1995-prog.github.io/ocean-view-app/) — Web dashboard
-- [TradingView](https://www.tradingview.com/) — Install indicator
+- [TradingView](https://www.tradingview.com/) — Install indicator (coming soon)
 - [Algorithm Documentation](docs/algorithm.md)
+- [Validation Script](python/validate_pine_csv.py) — Offline Pine Script validation
 
 ---
 
