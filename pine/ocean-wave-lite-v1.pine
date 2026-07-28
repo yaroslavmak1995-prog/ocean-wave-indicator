@@ -1,0 +1,115 @@
+// This Pine Script™ source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © Ocean View
+
+//@version=5
+indicator("Ocean Wave Lite — Zone Visualization", shorttitle="Ocean Lite", overlay=true, max_lines_count=100, max_labels_count=100)
+
+// ════════════════════════════════════════════════════════════════
+// OCEAN WAVE LITE — Simplified Zone Visualization
+// 
+// Just colored zones + MAs. No factor table.
+// For traders who want a CLEAN chart with trend context.
+// 
+// Based on Nonuple Algorithm v6.1 (5-year backtest: 45.32% win rate)
+// THIS IS A VISUALIZATION TOOL, NOT A SIGNAL SERVICE.
+// ════════════════════════════════════════════════════════════════
+
+// ─── INPUTS ────────────────────────────────────────────────────
+ma_fast_len = input.int(20, "MA Fast", group="Trend")
+ma_slow_len = input.int(50, "MA Slow", group="Trend")
+zone_transparency = input.int(85, "Zone Transparency (0-100)", minval=60, maxval=98, group="Visual")
+show_ma = input.bool(true, "Show MA Lines", group="Visual")
+show_label = input.bool(true, "Show Signal Label", group="Visual")
+
+// ─── CALCULATIONS ──────────────────────────────────────────────
+ma_fast = ta.sma(close, ma_fast_len)
+ma_slow = ta.sma(close, ma_slow_len)
+ma_diff_pct = (ma_fast - ma_slow) / ma_slow * 100
+
+// RSI
+rsi_value = ta.rsi(close, 14)
+
+// ADX
+[diplus, diminus, adx_value] = ta.dmi(14, 14)
+adx_dir = diplus > diminus ? 1 : diplus < diminus ? -1 : 0  // 1=bullish, -1=bearish
+
+// MACD
+[macd_line, macd_signal_line, macd_hist] = ta.macd(close, 12, 26, 9)
+macd_dir = macd_line > macd_signal_line ? 1 : -1
+
+// Bollinger Bands
+bb_basis = ta.sma(close, 20)
+bb_dev = 2.0 * ta.stdev(close, 20)
+bb_upper = bb_basis + bb_dev
+bb_lower = bb_basis - bb_dev
+bb_range = bb_upper - bb_lower
+bb_pb = bb_range > 0 ? (close - bb_lower) / bb_range : 0.5
+
+// Stochastic
+stoch_k_raw = 100 * (close - ta.lowest(low, 14)) / (ta.highest(high, 14) - ta.lowest(low, 14))
+stoch_k = ta.sma(stoch_k_raw, 3)
+stoch_d = ta.sma(stoch_k, 3)
+
+// ATR
+atr_val = ta.atr(14)
+atr_pct = atr_val / close * 100
+
+// Volume
+avg_vol = ta.sma(volume, 20)
+vol_ratio = avg_vol > 0 ? volume / avg_vol : 1.0
+
+// ─── TREND DETECTION ───────────────────────────────────────────
+// Simplified: majority vote of 9 factors
+
+// Factor scores: +1 bullish, -1 bearish, 0 neutral
+f1 = ma_diff_pct > 0.5 ? 1 : ma_diff_pct < -0.5 ? -1 : 0  // MA crossover
+f2 = vol_ratio > 1.5 ? f1 : vol_ratio < 0.5 ? -f1 : 0  // Volume confirms or denies
+f3 = rsi_value > 55 ? 1 : rsi_value < 45 ? -1 : 0  // RSI direction
+f4 = adx_dir  // ADX direction
+f5 = macd_dir  // MACD direction
+f6 = atr_pct < 2.0 ? 0 : 0  // ATR: high vol = caution (simplified)
+f7 = bb_pb > 0.6 ? 1 : bb_pb < 0.4 ? -1 : 0  // BB position
+f8 = stoch_k > 55 ? 1 : stoch_k < 45 ? -1 : 0  // Stochastic direction
+
+// Total score
+factor_sum = f1 + f2 + f3 + f4 + f5 + f6 + f7 + f8
+
+// Trend: 3+ = uptrend, -3- = downtrend, else neutral
+trend = factor_sum >= 3 ? 1 : factor_sum <= -3 ? -1 : 0
+
+// Strength based on how many factors agree
+agree_count = math.abs(f1) + math.abs(f2) + math.abs(f3) + math.abs(f4) + math.abs(f5) + math.abs(f7) + math.abs(f8)
+same_dir = (f1 == 1 ? 1 : f1 == -1 ? -1 : 0) + (f2 == 1 ? 1 : f2 == -1 ? -1 : 0) + (f3 == 1 ? 1 : f3 == -1 ? -1 : 0) + (f4 == 1 ? 1 : f4 == -1 ? -1 : 0) + (f5 == 1 ? 1 : f5 == -1 ? -1 : 0) + (f7 == 1 ? 1 : f7 == -1 ? -1 : 0) + (f8 == 1 ? 1 : f8 == -1 ? -1 : 0)
+
+strength = trend != 0 ? math.min(100, math.max(0, math.abs(same_dir) * 10 + agree_count * 3)) : 0
+
+// Confidence (simplified)
+confidence = math.min(100, math.max(0, strength + (adx_value > 25 ? 10 : adx_value > 15 ? 0 : -15) + (vol_ratio > 1.5 ? 5 : vol_ratio < 0.8 ? -10 : 0)))
+
+// ─── VISUALIZATION ─────────────────────────────────────────────
+
+// Zone colors
+green_strong = color.new(#22c55e, zone_transparency)
+green_weak = color.new(#86efac, zone_transparency)
+yellow = color.new(#fbbf24, zone_transparency)
+red_weak = color.new(#fca5a5, zone_transparency)
+red_strong = color.new(#ef4444, zone_transparency)
+
+zone_bg = trend == 1 ? (strength >= 70 ? green_strong : green_weak) : trend == -1 ? (strength >= 70 ? red_strong : red_weak) : yellow
+
+bgcolor(zone_bg, title="Trend Zone")
+
+// MA Lines
+plot(show_ma ? ma_fast : na, "MA Fast", color=color.new(#22c55e, 30), linewidth=2)
+plot(show_ma ? ma_slow : na, "MA Slow", color=color.new(#ef4444, 30), linewidth=2)
+
+// Signal Label
+signal_text = trend == 1 ? "🟢 " + (strength >= 70 ? "Strong" : "Moderate") + " Uptrend" : trend == -1 ? "🔴 " + (strength >= 70 ? "Strong" : "Moderate") + " Downtrend" : "🟡 Consolidation"
+
+if show_label and barstate.islast
+    label.new(bar_index, high, signal_text + "\n" + str.tostring(confidence, "#") + "% conf", color=color.new(#0f172a, 20), text_color=color.white, style=label.style_label_down, textsize=size.small)
+
+// ─── ALERTS ─────────────────────────────────────────────────────
+alertcondition(trend == 1 and trend[1] != 1, title="Uptrend Start", message="Ocean Wave Lite: Uptrend started")
+alertcondition(trend == -1 and trend[1] != -1, title="Downtrend Start", message="Ocean Wave Lite: Downtrend started")
+alertcondition(trend == 0 and trend[1] != 0, title="Neutral Start", message="Ocean Wave Lite: Consolidation started")
