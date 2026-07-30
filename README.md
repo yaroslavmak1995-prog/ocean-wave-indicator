@@ -2,7 +2,15 @@
 
 > **See the market in 5 seconds, not 5 minutes.**
 
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
+[![GitHub stars](https://img.shields.io/github/stars/yaroslavmak1995-prog/ocean-wave-indicator?style=social)](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/stargazers)
+[![GitHub last commit](https://img.shields.io/github/last-commit/yaroslavmak1995-prog/ocean-wave-indicator)](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/commits)
+[![Backtest](https://img.shields.io/badge/Backtest-5y%20%C3%97%205%20tickers-blue)](docs/backtest-results.md)
+[![Win Rate](https://img.shields.io/badge/Win%20Rate-45.32%25%20(honest)-orange)](docs/backtest-results.md)
+
 Ocean Wave is an open-source trend visualization indicator that fuses 9 technical indicators into colored zones (green/yellow/red). It's designed for speed of understanding, not prediction.
+
+**⭐ Star this repo if you find it useful — it helps other traders discover it!**
 
 ## ⚠️ DISCLAIMER
 
