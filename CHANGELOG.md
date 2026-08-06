@@ -1,5 +1,25 @@
 # CHANGELOG — Ocean Wave Indicator
 
+## v2.1 (2026-08-05) — Confidence Smoothing + Zone Change Alerts
+
+### Added
+- **Confidence Smoothing (EMA-based)** — configurable length (default: 3 bars), toggleable. Addresses Issue #3 (GOOGL 0%→87% in 1 day).
+- **Rate-limiting for confidence changes** — max confidence change per bar (default: 20pp). Prevents wild swings.
+- **Zone change alerts** — 3 new alert conditions: `zone_to_red` (green/yellow → red), `zone_to_green` (red/yellow → green), `zone_changed` (any zone change). Addresses Issue #1.
+- **Confidence threshold alerts** — 2 new alert conditions: confidence crosses above/below configurable threshold (default: 50). Addresses Issue #2.
+- **Total alert conditions: 6 → 11** (6 original + 5 new)
+
+### New Inputs
+- `use_confidence_smoothing` (bool, default: true)
+- `confidence_ema_len` (int, default: 3, range: 1-10)
+- `max_conf_change` (int, default: 20, range: 5-50)
+- `conf_thresh` (int, default: 50, range: 10-90)
+
+### Impact
+- Confidence scores are now smoother and more stable
+- Traders can set alerts for zone changes without watching the chart
+- Backward compatible — smoothing can be disabled to get v1.1 behavior
+
 ## v1.1 (2026-07-26) — Confidence Fix & Algorithm Alignment
 
 ### Fixed

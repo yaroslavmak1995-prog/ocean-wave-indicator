@@ -8,7 +8,7 @@
 [![Backtest](https://img.shields.io/badge/Backtest-5y%20%C3%97%205%20tickers-blue)](docs/backtest-results.md)
 [![Win Rate](https://img.shields.io/badge/Win%20Rate-45.32%25%20(honest)-orange)](docs/backtest-results.md)
 
-Ocean Wave is an open-source trend visualization indicator that fuses 9 technical indicators into colored zones (green/yellow/red). It's designed for speed of understanding, not prediction.
+Ocean Wave is an open-source trend visualization indicator that fuses 9 technical indicators into colored zones (green/yellow/red). It's designed for speed of understanding, not prediction. Now with confidence smoothing and 11 alert conditions (v2.1).
 
 **⭐ Star this repo if you find it useful — it helps other traders discover it!**
 
@@ -66,10 +66,17 @@ Use Ocean Wave to understand market context faster, not to predict price directi
 ### Full Version (9-Factor with Tables)
 
 1. Open TradingView → Pine Editor
-2. Copy the contents of `pine/ocean-wave-v1.pine`
+2. Copy the contents of `pine/ocean-wave-v2.1.pine` (latest)
 3. Paste into Pine Editor
 4. Click "Add to chart"
-5. Configure inputs (MA periods, RSI thresholds, etc.)
+5. Configure inputs (MA periods, RSI thresholds, smoothing, alerts)
+
+### v2.1 New Features
+
+- ✨ **Confidence Smoothing** — EMA-based smoothing prevents wild confidence jumps
+- 🚨 **Zone Change Alerts** — get notified when trend zone changes color
+- 📊 **Confidence Threshold Alerts** — alert when confidence crosses your threshold
+- 11 total alert conditions (was 6 in v1.1)
 
 ### Lite Version (Zones Only)
 
@@ -148,10 +155,19 @@ Mozilla Public License 2.0 — use freely, modify, share. Attribution appreciate
 ## 🔗 Links
 
 - [Ocean View App](https://yaroslavmak1995-prog.github.io/ocean-view-app/) — Web dashboard
-- [TradingView](https://www.tradingview.com/) — Install indicator (coming soon)
+- [TradingView](https://www.tradingview.com/script/4ZzTlQct-Ocean-Wave-9-Factor-Trend-Visualization/) — Install indicator
 - [Algorithm Documentation](docs/algorithm.md)
 - [Validation Script](python/validate_pine_csv.py) — Offline Pine Script validation
 
 ---
 
 Built with ❤️ by the Ocean View team. Not financial advice. DYOR.
+
+## 📋 Roadmap
+
+We use GitHub Issues to track planned features. Current open issues:
+- [#1: Alert conditions for trend zone changes](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/1) — ✅ Addressed in v2.1
+- [#2: Multi-timeframe mode (D1 trend on H1 chart)](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/2) — Planned for v3
+- [#3: Improve confidence stability](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/3) — ✅ Addressed in v2.1
+
+Have an idea? [Open an issue](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/new)!
