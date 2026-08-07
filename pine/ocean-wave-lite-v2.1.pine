@@ -1,0 +1,272 @@
+// This Pine Script™ source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © Ocean View
+
+//@version=5
+indicator("Ocean Wave Lite v2.1 — Zone Visualization + Smoothing", shorttitle="Ocean Lite v2.1", overlay=true, max_lines_count=100, max_labels_count=100)
+
+// ════════════════════════════════════════════════════════════════
+// OCEAN WAVE LITE v2.1 — Simplified Zone Visualization
+// 
+// CHANGES v2.1:
+// - Confidence smoothing (EMA) — reduces wild day-to-day swings
+// - Rate-limiting (max change per bar)
+// - Zone change alerts (green→red, red→green, any zone change)
+// - Confidence threshold cross alerts
+// - Total alerts: 3 → 8
+//
+// Based on Nonuple Algorithm v6.1 (5-year backtest: 45.32% win rate)
+// THIS IS A VISUALIZATION TOOL, NOT A SIGNAL SERVICE.
+// ════════════════════════════════════════════════════════════════
+
+// ─── INPUTS ────────────────────────────────────────────────────
+ma_fast_len = input.int(20, "MA Fast", minval=5, maxval=50, group="Trend")
+ma_slow_len = input.int(50, "MA Slow", minval=10, maxval=200, group="Trend")
+zone_transparency = input.int(85, "Zone Transparency (0-100)", minval=60, maxval=98, group="Visual")
+show_ma = input.bool(true, "Show MA Lines", group="Visual")
+show_label = input.bool(true, "Show Signal Label", group="Visual")
+
+// Confidence Smoothing (v2.1)
+use_confidence_smoothing = input.bool(true, "Enable Confidence Smoothing (EMA)", group="Algorithm")
+confidence_ema_len = input.int(3, "Confidence EMA Length", minval=1, maxval=10, group="Algorithm")
+max_conf_change = input.int(20, "Max Confidence Change Per Bar (pp)", minval=5, maxval=50, group="Algorithm")
+conf_thresh = input.int(50, "Alert: Confidence Threshold", minval=10, maxval=90, group="Algorithm")
+
+// ─── CALCULATIONS (SAME AS FULL v1.1) ─────────────────────────
+
+// STEP 1: MA Crossover
+ma_fast = ta.sma(close, ma_fast_len)
+ma_slow = ta.sma(close, ma_slow_len)
+ma_diff_pct = (ma_fast - ma_slow) / ma_slow * 100
+base_trend = ma_diff_pct > 0.5 ? 1 : ma_diff_pct < -0.5 ? -1 : 0
+
+// STEP 2: Volume
+avg_vol = ta.sma(volume, 20)
+vol_ratio = avg_vol > 0 ? volume / avg_vol : 1.0
+volume_bonus = vol_ratio > 2.0 ? 15 : vol_ratio > 1.5 ? 10 : vol_ratio > 1.2 ? 5 : vol_ratio < 0.5 ? -10 : vol_ratio < 0.8 ? -5 : 0
+
+// STEP 3: Momentum
+momentum_pct = ma_fast > 0 ? (close - ma_fast) / ma_fast * 100 : 0
+momentum_bonus = math.abs(momentum_pct) > 3 ? 10 : math.abs(momentum_pct) > 1.5 ? 5 : math.abs(momentum_pct) < 0.5 ? -5 : 0
+
+// Base strength
+base_strength = math.abs(ma_diff_pct) * 15
+total_strength = math.min(100, math.max(0, base_strength + volume_bonus + momentum_bonus))
+
+// STEP 4: RSI
+rsi_value = ta.rsi(close, 14)
+rsi_bonus = 0
+if rsi_value >= 70
+    rsi_bonus := base_trend == 1 ? -10 : base_trend == -1 ? 15 : 0
+else if rsi_value <= 30
+    rsi_bonus := base_trend == -1 ? -10 : base_trend == 1 ? 15 : 0
+else if rsi_value >= 60
+    rsi_bonus := base_trend == 1 ? 5 : base_trend == -1 ? -5 : 0
+else if rsi_value <= 40
+    rsi_bonus := base_trend == -1 ? 5 : base_trend == 1 ? -5 : 0
+
+// STEP 5: ADX
+[diplus, diminus, adx_value] = ta.dmi(14, 14)
+adx_dir = diplus > diminus ? "bullish" : diplus < diminus ? "bearish" : "neutral"
+adx_bonus = 0
+if adx_value >= 25
+    if adx_dir == "bullish" and base_trend == 1
+        adx_bonus := 15
+    else if adx_dir == "bearish" and base_trend == -1
+        adx_bonus := 15
+    else if adx_dir != "neutral" and base_trend == 0
+        adx_bonus := 5
+    else
+        adx_bonus := -5
+else if adx_value >= 15
+    adx_bonus := 0
+else
+    adx_bonus := -15
+
+// STEP 6: MACD
+[macd_line, macd_signal_line, macd_hist] = ta.macd(close, 12, 26, 9)
+macd_trend = macd_line > macd_signal_line and macd_line > 0 ? "strong_bullish" : macd_line > macd_signal_line ? "bullish" : macd_line < macd_signal_line and macd_line < 0 ? "strong_bearish" : macd_line < macd_signal_line ? "bearish" : "neutral"
+macd_bonus = 0
+if macd_trend == "strong_bullish" and base_trend == 1
+    macd_bonus := 15
+else if macd_trend == "bullish" and base_trend == 1
+    macd_bonus := 10
+else if macd_trend == "strong_bearish" and base_trend == -1
+    macd_bonus := 15
+else if macd_trend == "bearish" and base_trend == -1
+    macd_bonus := 10
+else if macd_trend == "neutral" and base_trend == 0
+    macd_bonus := 3
+else
+    macd_bonus := -10
+
+// STEP 7: ATR
+atr_val = ta.atr(14)
+atr_pct = atr_val / close * 100
+atr_bonus = 0
+if atr_pct > 5.0
+    atr_bonus := -15
+else if atr_pct > 3.0
+    atr_bonus := -8
+else if atr_pct < 1.0
+    atr_bonus := 3
+
+atr_trend = atr_val > atr_val[1] ? "rising" : atr_val < atr_val[1] ? "falling" : "stable"
+if atr_trend == "rising" and base_trend != 0
+    atr_bonus := atr_bonus - 3
+else if atr_trend == "falling" and base_trend != 0
+    atr_bonus := atr_bonus + 2
+
+// STEP 8: Bollinger Bands
+bb_basis = ta.sma(close, 20)
+bb_dev = 2.0 * ta.stdev(close, 20)
+bb_upper = bb_basis + bb_dev
+bb_lower = bb_basis - bb_dev
+bb_range = bb_upper - bb_lower
+bb_pb = bb_range > 0 ? (close - bb_lower) / bb_range : 0.5
+bb_bandwidth = bb_basis > 0 ? bb_range / bb_basis * 100 : 0
+bb_squeeze = bb_bandwidth < 3 ? "extreme" : bb_bandwidth < 5 ? "tight" : bb_bandwidth > 10 ? "expanding" : "normal"
+
+bb_bonus = 0
+if bb_pb >= 1.0 or bb_pb <= 0.0
+    bb_bonus := -8
+else if bb_pb >= 0.85 or bb_pb <= 0.15
+    bb_bonus := -3
+if bb_squeeze == "extreme" or bb_squeeze == "tight"
+    bb_bonus := bb_bonus - 5
+else if bb_squeeze == "expanding" and base_trend != 0
+    bb_bonus := bb_bonus + 4
+if (base_trend == 1 and bb_pb > 0.6) or (base_trend == -1 and bb_pb < 0.4)
+    bb_bonus := bb_bonus + 3
+
+// STEP 9: Stochastic
+stoch_range = ta.highest(high, 14) - ta.lowest(low, 14)
+stoch_k_raw = stoch_range > 0 ? 100 * (close - ta.lowest(low, 14)) / stoch_range : 50
+stoch_k = ta.sma(stoch_k_raw, 3)
+stoch_d = ta.sma(stoch_k, 3)
+stoch_signal = stoch_k >= 80 ? "overbought" : stoch_k <= 20 ? "oversold" : stoch_k >= 60 ? "bullish" : stoch_k <= 40 ? "bearish" : "neutral"
+
+stoch_bonus = 0
+if stoch_signal == "overbought" and base_trend == 1
+    stoch_bonus := -4
+else if stoch_signal == "oversold" and base_trend == -1
+    stoch_bonus := -4
+else if stoch_signal == "neutral"
+    stoch_bonus := 2
+else if (base_trend == 1 and stoch_k > 50) or (base_trend == -1 and stoch_k < 50)
+    stoch_bonus := 3
+else if (base_trend == 1 and stoch_k < 30) or (base_trend == -1 and stoch_k > 70)
+    stoch_bonus := -4
+
+stoch_crossover = ta.crossover(stoch_k, stoch_d) ? "bullish" : ta.crossunder(stoch_k, stoch_d) ? "bearish" : "none"
+if stoch_crossover == "bullish" and (base_trend == 1 or base_trend == 0)
+    stoch_bonus := stoch_bonus + 3
+else if stoch_crossover == "bearish" and (base_trend == -1 or base_trend == 0)
+    stoch_bonus := stoch_bonus + 3
+
+// ─── AGGREGATION (v1.1 — NO DOUBLE-COUNTING) ──────────────────
+
+// Total Strength: each bonus counted ONCE
+total_strength := math.min(100, math.max(0, total_strength + rsi_bonus + adx_bonus + macd_bonus + atr_bonus + bb_bonus + stoch_bonus))
+
+// Synergy
+agree_count = 0
+if (base_trend == 1 and rsi_value >= 50) or (base_trend == -1 and rsi_value <= 50)
+    agree_count += 1
+if (base_trend == 1 and adx_dir == "bullish") or (base_trend == -1 and adx_dir == "bearish")
+    agree_count += 1
+macd_agrees = (base_trend == 1 and macd_trend == "strong_bullish") or (base_trend == 1 and macd_trend == "bullish") or (base_trend == -1 and macd_trend == "strong_bearish") or (base_trend == -1 and macd_trend == "bearish")
+if macd_agrees
+    agree_count += 1
+if atr_pct <= 3.0 and base_trend != 0
+    agree_count += 1
+if (base_trend == 1 and bb_pb > 0.5) or (base_trend == -1 and bb_pb < 0.5)
+    agree_count += 1
+if (base_trend == 1 and stoch_k > 50) or (base_trend == -1 and stoch_k < 50)
+    agree_count += 1
+
+synergy_bonus = agree_count >= 4 ? 10 : 0
+
+// Confirmation count
+confirmation_count = 0
+if rsi_bonus >= 0
+    confirmation_count += 1
+if adx_bonus >= 0
+    confirmation_count += 1
+if macd_bonus >= 0
+    confirmation_count += 1
+if atr_bonus >= 0
+    confirmation_count += 1
+if bb_bonus >= 0
+    confirmation_count += 1
+if stoch_bonus >= 0
+    confirmation_count += 1
+
+// Confidence Floor
+if confirmation_count >= 3 and base_trend != 0
+    total_strength := math.min(100, total_strength + 10)
+if confirmation_count >= 5 and base_trend != 0
+    total_strength := math.min(100, total_strength + 15)
+
+// Zone
+zone_color = base_trend == 1 ? (total_strength >= 70 ? 2 : 1) : base_trend == -1 ? (total_strength >= 70 ? -2 : -1) : 0
+
+// Confidence (v1.1: NO double-counting)
+confidence_raw = math.min(100, math.max(0, total_strength + synergy_bonus))
+if confirmation_count >= 3 and base_trend != 0
+    confidence_raw := math.max(confidence_raw, 25)
+if confirmation_count >= 5 and base_trend != 0
+    confidence_raw := math.max(confidence_raw, 50)
+confidence_raw := math.min(100, math.max(0, confidence_raw))
+
+// ─── Confidence Smoothing (v2.1 — Issue #3) ───────────────────
+confidence_smoothed = use_confidence_smoothing ? ta.ema(confidence_raw, confidence_ema_len) : confidence_raw
+
+// Rate-limit: max change per bar
+confidence_change = confidence_smoothed - nz(confidence_smoothed[1], confidence_smoothed)
+confidence_limited = confidence_change > max_conf_change ? confidence_smoothed[1] + max_conf_change : confidence_change < -max_conf_change ? confidence_smoothed[1] - max_conf_change : confidence_smoothed
+
+// Final confidence
+confidence = math.min(100, math.max(0, confidence_limited))
+
+// ─── VISUALIZATION ─────────────────────────────────────────────
+
+// Zone colors
+green_strong = color.new(#22c55e, zone_transparency)
+green_weak = color.new(#86efac, zone_transparency)
+yellow = color.new(#fbbf24, zone_transparency)
+red_weak = color.new(#fca5a5, zone_transparency)
+red_strong = color.new(#ef4444, zone_transparency)
+
+zone_bg = zone_color == 2 ? green_strong : zone_color == 1 ? green_weak : zone_color == 0 ? yellow : zone_color == -1 ? red_weak : red_strong
+
+bgcolor(zone_bg, title="Trend Zone")
+
+// MA Lines
+plot(show_ma ? ma_fast : na, "MA Fast", color=color.new(#22c55e, 30), linewidth=2)
+plot(show_ma ? ma_slow : na, "MA Slow", color=color.new(#ef4444, 30), linewidth=2)
+
+// Signal Label
+signal_text = base_trend == 1 ? (total_strength >= 80 and vol_ratio > 1.5 ? "Strong Uptrend" : total_strength >= 60 ? "Moderate Uptrend" : "Weak Uptrend") : base_trend == -1 ? (total_strength >= 80 and vol_ratio > 1.5 ? "Strong Downtrend" : total_strength >= 60 ? "Moderate Downtrend" : "Weak Downtrend") : (total_strength < 30 ? "Consolidation" : "Ranging")
+
+if show_label and barstate.islast
+    label.new(bar_index, high, signal_text + "\n" + str.tostring(confidence, "#") + "% conf", color=base_trend == 1 ? color.new(#22c55e, 20) : base_trend == -1 ? color.new(#ef4444, 20) : color.new(#fbbf24, 20), text_color=color.white, style=label.style_label_down, size=size.small)
+
+// ─── Zone Change Tracking (v2.1 — Issue #1) ──────────────────
+zone_changed = zone_color != nz(zone_color[1], zone_color)
+zone_to_red = zone_color < 0 and nz(zone_color[1], 0) >= 0
+zone_to_green = zone_color > 0 and nz(zone_color[1], 0) <= 0
+
+// ─── ALERTS ─────────────────────────────────────────────────────
+// Original alerts
+alertcondition(base_trend == 1 and base_trend[1] != 1, title="Uptrend Start", message="Ocean Wave Lite: Uptrend started")
+alertcondition(base_trend == -1 and base_trend[1] != -1, title="Downtrend Start", message="Ocean Wave Lite: Downtrend started")
+alertcondition(base_trend == 0 and base_trend[1] != 0, title="Neutral Start", message="Ocean Wave Lite: Consolidation started")
+
+// v2.1 NEW: Zone change alerts
+alertcondition(zone_to_red, title="🔴 Zone → Red", message="Ocean Wave Lite: Zone changed to RED — downtrend context detected")
+alertcondition(zone_to_green, title="🟢 Zone → Green", message="Ocean Wave Lite: Zone changed to GREEN — uptrend context detected")
+alertcondition(zone_changed, title="🔄 Any Zone Change", message="Ocean Wave Lite: Zone color changed — trend context shift")
+
+// v2.1 NEW: Confidence threshold cross alerts
+alertcondition(confidence >= conf_thresh and confidence[1] < conf_thresh, title="Confidence Cross Up", message="Ocean Wave Lite: Confidence crossed above threshold")
+alertcondition(confidence < conf_thresh and confidence[1] >= conf_thresh, title="Confidence Cross Down", message="Ocean Wave Lite: Confidence crossed below threshold")
