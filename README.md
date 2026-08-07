@@ -81,10 +81,12 @@ Use Ocean Wave to understand market context faster, not to predict price directi
 ### Lite Version (Zones Only)
 
 1. Open TradingView → Pine Editor
-2. Copy the contents of `pine/ocean-wave-lite-v1.pine`
+2. Copy the contents of `pine/ocean-wave-lite-v2.1.pine` (latest, with smoothing + alerts)
 3. Paste into Pine Editor
 4. Click "Add to chart"
-5. Clean chart with just colored zones + MAs
+5. Clean chart with just colored zones + MAs + 8 alert conditions
+
+**Lite v2.1** includes the same confidence smoothing, rate-limiting, zone change alerts, and confidence threshold alerts as Full v2.1. Total alerts: 8 (was 3 in v1.1).
 
 ## 📁 Repository Structure
 
@@ -165,9 +167,18 @@ Built with ❤️ by the Ocean View team. Not financial advice. DYOR.
 
 ## 📋 Roadmap
 
-We use GitHub Issues to track planned features. Current open issues:
-- [#1: Alert conditions for trend zone changes](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/1) — ✅ Addressed in v2.1
-- [#2: Multi-timeframe mode (D1 trend on H1 chart)](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/2) — Planned for v3
-- [#3: Improve confidence stability](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/3) — ✅ Addressed in v2.1
+We use GitHub Issues to track planned features. Current status:
+- ✅ [#1: Alert conditions for trend zone changes](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/1) — CLOSED, addressed in v2.1
+- ✅ [#3: Improve confidence stability](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/3) — CLOSED, addressed in v2.1
+- ✅ [#4: Lite v2.1 with confidence smoothing + zone alerts](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/4) — CLOSED, Lite v2.1 released
+- 🔵 [#2: Multi-timeframe mode (D1 trend on H1 chart)](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/2) — Planned for v3
+- 🔵 [#8: Multi-ticker backtest dashboard for web app](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/8) — Planned
 
-Have an idea? [Open an issue](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/new)!
+### 💬 Discussions
+
+We have [GitHub Discussions](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/discussions) enabled! Join the conversation:
+- [👋 Welcome & Ask Anything](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/discussions/5)
+- [💡 Feature Requests for v3](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/discussions/6)
+- [📊 Share Your Backtest Results](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/discussions/7)
+
+Have an idea? [Open an issue](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/issues/new) or start a [discussion](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/discussions)!
