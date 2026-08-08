@@ -98,6 +98,7 @@ ocean-wave-indicator/
 │   ├── ocean-wave-v1.pine       # Full 9-factor indicator
 │   ├── ocean-wave-lite-v1.pine  # Lite zone-only indicator
 │   └── CHANGELOG.md
+├── CONTRIBUTING.md              # Contributor guide
 ├── python/
 │   ├── nonuple_algorithm.py      # Reference Python implementation
 │   └── validate_pine_csv.py      # Validation script (offline)
@@ -105,7 +106,8 @@ ocean-wave-indicator/
 │   └── results/                  # Backtest data (JSON)
 └── docs/
     ├── algorithm.md               # Detailed algorithm description
-    └── backtest-results.md        # Full backtest results
+    ├── backtest-results.md        # Full backtest results
+    └── example-configs.md         # Trading style presets (scalping/swing/position)
 ```
 
 ## 📈 Backtest Results
@@ -143,12 +145,15 @@ AAPL: Trend match 100.0% | Zone match 60.7% | Strength diff 26.6pp | Confidence 
 
 ## 🤝 Contributing
 
-Contributions welcome! Areas of interest:
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+Areas of interest:
 - Algorithm improvements (without overfitting)
 - Additional indicator combinations
 - Multi-timeframe analysis
 - Backtesting on more tickers and time periods
 - UI/UX improvements for TradingView
+- Documentation and examples (see [example configs](docs/example-configs.md))
 
 ## 📄 License
 
