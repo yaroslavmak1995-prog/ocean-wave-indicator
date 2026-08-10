@@ -12,7 +12,23 @@ Ocean Wave is an open-source **Pine Script indicator** for TradingView that fuse
 
 **Keywords:** pine script indicator, trading visualization, trend zones, multi-indicator, RSI + ADX + MACD + Bollinger Bands, TradingView indicator, open source trading tool, trend analysis, market context, confidence score
 
-**⭐ Star this repo if you find it useful — it helps other traders discover it!**
+---
+
+## ⚡ Try It in 30 Seconds
+
+No installation, no signup — just 3 steps:
+
+1. **Open** the [TradingView indicator page](https://www.tradingview.com/script/4ZzTlQct-Ocean-Wave-9-Factor-Trend-Visualization/)
+2. **Click** "Add to chart" (free TradingView account required)
+3. **See** colored zones — green = uptrend, yellow = neutral, red = downtrend
+
+That's it. You now see 9 indicators at a glance instead of 9 separate charts.
+
+---
+
+> ### ⭐ **Star this repo** — it helps other traders discover Ocean Wave and motivates us to keep building!
+
+---
 
 ## ⚠️ DISCLAIMER
 
@@ -114,6 +130,7 @@ ocean-wave-indicator/
 │   └── results/                  # Backtest data (JSON)
 └── docs/
     ├── algorithm.md               # Detailed algorithm description
+    ├── architecture.md            # System architecture diagram
     ├── backtest-results.md        # Full backtest results
     └── example-configs.md         # Trading style presets (scalping/swing/position)
 ```
@@ -172,11 +189,24 @@ Mozilla Public License 2.0 — use freely, modify, share. Attribution appreciate
 - [Ocean View App](https://yaroslavmak1995-prog.github.io/ocean-view-app/) — Web dashboard
 - [TradingView](https://www.tradingview.com/script/4ZzTlQct-Ocean-Wave-9-Factor-Trend-Visualization/) — Install indicator
 - [Algorithm Documentation](docs/algorithm.md)
+- [Architecture Diagram](docs/architecture.md)
 - [Validation Script](python/validate_pine_csv.py) — Offline Pine Script validation
 
 ---
 
 Built with ❤️ by the Ocean View team. Not financial advice. DYOR.
+
+## 🔮 Coming Soon (v3)
+
+- 🌐 **Multi-timeframe mode** — see D1 trend zone on H1 chart (Issue #2)
+- 📊 **Multi-ticker backtest dashboard** — test multiple tickers at once in the web app (Issue #8)
+- ⚙️ **Preset dropdown** — switch between Scalping / Swing / Position presets directly in Pine Script (Issue #10)
+- 🔧 **Confidence fix** — address indicator double-counting for more accurate scores
+- 📸 **Screenshot gallery** — real examples for different market conditions
+
+⭐ **Star and follow** to get notified when v3 drops!
+
+---
 
 ## 📋 Roadmap
 
