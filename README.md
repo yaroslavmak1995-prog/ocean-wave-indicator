@@ -8,7 +8,9 @@
 [![Backtest](https://img.shields.io/badge/Backtest-5y%20%C3%97%205%20tickers-blue)](docs/backtest-results.md)
 [![Win Rate](https://img.shields.io/badge/Win%20Rate-45.32%25%20(honest)-orange)](docs/backtest-results.md)
 
-Ocean Wave is an open-source trend visualization indicator that fuses 9 technical indicators into colored zones (green/yellow/red). It's designed for speed of understanding, not prediction. Now with confidence smoothing and 11 alert conditions (v2.1).
+Ocean Wave is an open-source **Pine Script indicator** for TradingView that fuses 9 technical indicators into colored zones (green/yellow/red). It's designed for speed of understanding, not prediction. Now with confidence smoothing and 11 alert conditions (v2.1).
+
+**Keywords:** pine script indicator, trading visualization, trend zones, multi-indicator, RSI + ADX + MACD + Bollinger Bands, TradingView indicator, open source trading tool, trend analysis, market context, confidence score
 
 **⭐ Star this repo if you find it useful — it helps other traders discover it!**
 
@@ -94,11 +96,17 @@ Use Ocean Wave to understand market context faster, not to predict price directi
 ocean-wave-indicator/
 ├── README.md (this file)
 ├── LICENSE (Mozilla Public License 2.0)
-├── pine/
-│   ├── ocean-wave-v1.pine       # Full 9-factor indicator
-│   ├── ocean-wave-lite-v1.pine  # Lite zone-only indicator
-│   └── CHANGELOG.md
 ├── CONTRIBUTING.md              # Contributor guide
+├── CODE_OF_CONDUCT.md          # Community standards
+├── .github/
+│   ├── ISSUE_TEMPLATE/         # Bug report, feature request, backtest templates
+│   └── PULL_REQUEST_TEMPLATE.md
+├── pine/
+│   ├── ocean-wave-v2.1.pine     # Full 9-factor indicator (latest)
+│   ├── ocean-wave-lite-v2.1.pine # Lite zone-only indicator (latest)
+│   ├── ocean-wave-v1.pine       # Full 9-factor indicator (original)
+│   ├── ocean-wave-lite-v1.pine  # Lite zone-only indicator (original)
+│   └── CHANGELOG.md
 ├── python/
 │   ├── nonuple_algorithm.py      # Reference Python implementation
 │   └── validate_pine_csv.py      # Validation script (offline)
@@ -145,7 +153,7 @@ AAPL: Trend match 100.0% | Zone match 60.7% | Strength diff 26.6pp | Confidence 
 
 ## 🤝 Contributing
 
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines. Please note that this project follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 Areas of interest:
 - Algorithm improvements (without overfitting)
