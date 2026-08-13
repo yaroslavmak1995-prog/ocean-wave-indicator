@@ -8,6 +8,7 @@
 [![Backtest](https://img.shields.io/badge/Backtest-5y%20%C3%97%205%20tickers-blue)](docs/backtest-results.md)
 [![Win Rate](https://img.shields.io/badge/Win%20Rate-45.32%25%20(honest)-orange)](docs/backtest-results.md)
 [![Validated: Pine vs Python](https://img.shields.io/badge/Validated-100%25%20trend%20match%20(Pine%20vs%20Python)-success)](docs/validation-results.md)
+[![Regime Tested](https://img.shields.io/badge/Regime%20Tested-5%20market%20regimes-blueviolet)](docs/regime-backtest-results.md)
 
 Ocean Wave is an open-source **Pine Script indicator** for TradingView that fuses 9 technical indicators into colored zones (green/yellow/red). It's designed for speed of understanding, not prediction. Now with confidence smoothing and 11 alert conditions (v2.1).
 
