@@ -1,5 +1,43 @@
 # CHANGELOG — Ocean Wave Indicator
 
+## v3.0 (2026-08-16) — Wave Visualizer 🌊
+
+### Complete Repackage: Indicator → Visualizer
+
+This is not an incremental update. v3.0 is a complete reimagining of Ocean Wave — from a technical indicator with tables and numbers to a visual trend flow tool with ocean waves.
+
+### Added
+- **3-layer wave visualization** — surface, deep, and floor wave fills using `plot()` + `fill()`, creating an ocean depth effect
+- **Ocean color palette** — cyan/teal (bullish), indigo/violet (bearish), slate (neutral). No more generic green/red
+- **Wave height proportional to trend strength** — bigger waves = stronger trend (visual encoding)
+- **EMA-smoothed wave boundaries** — organic, flowing curves instead of jagged lines
+- **Wave Intensity input** — customizable wave height multiplier (0.5x to 3.0x)
+- **Minimal trend label** — just "🌊 Rising Tide" / "🌀 Undertow" / "~ Calm Waters" — no numbers
+- **Ocean-themed alerts** — "Tide Rising", "Undertow", "Tide Shift", "Strong Current", "Wave Alignment"
+- **Clean, minimal design** — think music visualizer, not Bloomberg Terminal
+
+### Removed
+- ❌ Factor table (9 rows with individual factor data) — contradicts "visual" promise
+- ❌ Confidence table (bottom-right) — no numbers on the visual
+- ❌ Signal label with percentages — too technical
+- ❌ bgcolor green/yellow/red zones — "банально", every indicator has this
+- ❌ "45% win rate (below random 50%)" in header — anti-advertising
+- ❌ "THIS IS A VISUALIZATION TOOL, NOT A SIGNAL SERVICE" in header — too defensive
+- ❌ All backtest references in user-facing code — moved to GitHub docs only
+- ❌ MA lines on by default — off for clean visual
+
+### Preserved (invisible to user)
+- ✅ 9-factor algorithm (MA, Volume, RSI, ADX, MACD, ATR, BB, Stochastic, Synergy)
+- ✅ Zone calculation (bullish/bearish/neutral)
+- ✅ Confidence calculation (internal only, not displayed)
+- ✅ All alert conditions (with improved copy)
+
+### Impact
+- Completely different visual identity — no other TradingView indicator looks like this
+- Removed all anti-advertising from user-facing code
+- TradingView SEO optimized for "Ocean Wave" search
+- Fresh start for marketing and community perception
+
 ## v2.1 (2026-08-05) — Confidence Smoothing + Zone Change Alerts
 
 ### Added
