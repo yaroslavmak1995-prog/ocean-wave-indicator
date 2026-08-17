@@ -5,7 +5,7 @@
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 [![GitHub stars](https://img.shields.io/github/stars/yaroslavmak1995-prog/ocean-wave-indicator?style=social)](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/stargazers)
 [![GitHub last commit](https://img.shields.io/github/last-commit/yaroslavmak1995-prog/ocean-wave-indicator)](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/commits)
-[![Version](https://img.shields.io/badge/Version-3.0%20%F0%9F%8C%8A-cyan)](pine/ocean-wave-v3.0.pine)
+[![Version](https://img.shields.io/badge/Version-3.1%20%F0%9F%8C%8A-cyan)](pine/ocean-wave-v3.1.pine)
 
 Ocean Wave turns price action into flowing ocean waves. No patterns to learn. No signals to chase. Just the natural rhythm of the market, visualized. 9 technical factors fused into 1 seamless visual — you see the result, not the math.
 
@@ -66,13 +66,16 @@ You don't need to read 9 indicators. The ocean does it for you.
 
 ## 🚀 Installation (TradingView)
 
-### v3.0 — Wave Visualizer (latest)
+### v3.1 — Wave Visualizer + MTF + Presets (latest)
 
 1. Open TradingView → Pine Editor
-2. Copy the contents of `pine/ocean-wave-v3.0.pine`
+2. Copy the contents of `pine/ocean-wave-v3.1.pine`
 3. Paste into Pine Editor
 4. Click "Add to chart"
-5. Customize wave intensity, colors, and layers
+5. Choose a preset (Scalping / Swing / Position) or customize manually
+6. Enable MTF mode to see higher timeframe trend
+
+### v3.0 — Wave Visualizer (stable)
 
 ### v2.1 — Classic Zones (legacy)
 
@@ -90,7 +93,8 @@ ocean-wave-indicator/
 │   ├── ISSUE_TEMPLATE/
 │   └── PULL_REQUEST_TEMPLATE.md
 ├── pine/
-│   ├── ocean-wave-v3.0.pine       # Wave Visualizer (latest)
+│   ├── ocean-wave-v3.1.pine       # Wave Visualizer + MTF + Presets (latest)
+│   ├── ocean-wave-v3.0.pine       # Wave Visualizer (stable)
 │   ├── ocean-wave-v2.1.pine       # Classic zones with tables (legacy)
 │   ├── ocean-wave-lite-v2.1.pine  # Lite zone-only (legacy)
 │   └── CHANGELOG.md
@@ -118,10 +122,16 @@ Ocean Wave includes ocean-themed alerts:
 | ⚡ Strong Current | High confidence trend |
 | 🔥 High Energy | Strong trend (80+ strength) |
 | 🌊 Wave Alignment | 4+ factors agree |
+| 📊 HTF Trend Change | Higher timeframe trend shifted |
+| 📊 HTF Tide Rising | Higher timeframe turning bullish |
+| 📊 HTF Undertow | Higher timeframe turning bearish |
 
 ## 🎨 Customization
 
 - **Wave Intensity** — control wave height (0.5x to 3.0x)
+- **Presets** — Scalping (fast), Swing (default), Position (slow) — one-click setup
+- **Multi-Timeframe** — see higher timeframe trend as background tint + label
+- **Smooth Color Transitions** — gradual color shifts between trend states
 - **Ocean Colors** — fully customizable palette
 - **Wave Layers** — surface, deep, and floor waves
 - **MA Lines** — optional, off by default for clean visual
@@ -161,6 +171,6 @@ Built with ❤️ by the Ocean View team. Not financial advice. DYOR.
 - ✅ v1.0 — Initial 9-factor indicator
 - ✅ v2.1 — Confidence smoothing + 11 alert conditions
 - ✅ v3.0 — Wave visualizer with ocean colors, 3-layer depth, no tables
-- 🔵 v3.1 — Multi-timeframe mode (D1 trend on H1 chart)
-- 🔵 v3.2 — Preset dropdown (Scalping / Swing / Position)
+- ✅ v3.1 — Multi-timeframe mode + preset dropdowns + smooth color transitions
+- 🔵 v3.2 — Preset refinements + mobile-optimized view
 - 🔵 v4.0 — Animated wave transitions

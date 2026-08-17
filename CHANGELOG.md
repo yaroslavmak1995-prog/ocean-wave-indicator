@@ -1,5 +1,30 @@
 # CHANGELOG — Ocean Wave Indicator
 
+## v3.1 (2026-08-17) — Multi-Timeframe + Presets + Color Transitions
+
+### Added
+- **Multi-Timeframe (MTF) mode** — see higher timeframe trend (D1, W1) while on a lower timeframe chart. Subtle background tint + HTF label + 3 MTF alerts
+- **Preset dropdown** — Scalping (fast MAs, low wave intensity), Swing (default), Position (slow MAs, high wave intensity). One-click setup for different trading styles
+- **Smooth color transitions** — EMA-based transition factor gradually shifts wave colors between bullish/bearish/neutral instead of hard switching. Toggleable via input
+- **3 new MTF alerts** — HTF Trend Change, HTF Tide Rising, HTF Undertow
+
+### Changed
+- MA, RSI, ADX lengths now use preset-overrideable effective values
+- Wave intensity also responds to preset selection
+- `max_boxes_count=50` added to indicator declaration for HTF label
+
+### Preset Details
+| Preset | MA Fast | MA Slow | RSI | ADX | Wave Intensity |
+|--------|---------|---------|-----|-----|----------------|
+| Default | 20 | 50 | 14 | 14 | 1.5x |
+| Scalping | 9 | 21 | 7 | 10 | 1.0x |
+| Swing | 20 | 50 | 14 | 14 | 1.5x |
+| Position | 50 | 200 | 21 | 20 | 2.5x |
+
+### Addresses GitHub Issues
+- Closes #2 (Multi-timeframe mode)
+- Closes #10 (Usage examples for different trading styles — via presets)
+
 ## v3.0 (2026-08-16) — Wave Visualizer 🌊
 
 ### Complete Repackage: Indicator → Visualizer
