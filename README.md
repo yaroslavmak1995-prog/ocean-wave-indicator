@@ -5,7 +5,7 @@
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 [![GitHub stars](https://img.shields.io/github/stars/yaroslavmak1995-prog/ocean-wave-indicator?style=social)](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/stargazers)
 [![GitHub last commit](https://img.shields.io/github/last-commit/yaroslavmak1995-prog/ocean-wave-indicator)](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/commits)
-[![Version](https://img.shields.io/badge/Version-3.1%20%F0%9F%8C%8A-cyan)](pine/ocean-wave-v3.1.pine)
+[![Version](https://img.shields.io/badge/Version-3.2%20%F0%9F%8C%8A-cyan)](pine/ocean-wave-v3.2.pine)
 
 Ocean Wave turns price action into flowing ocean waves. No patterns to learn. No signals to chase. Just the natural rhythm of the market, visualized. 9 technical factors fused into 1 seamless visual — you see the result, not the math.
 
@@ -66,14 +66,16 @@ You don't need to read 9 indicators. The ocean does it for you.
 
 ## 🚀 Installation (TradingView)
 
-### v3.1 — Wave Visualizer + MTF + Presets (latest)
+### v3.2 — Wave Visualizer + Auto-Preset + Dynamic HTF (latest)
 
 1. Open TradingView → Pine Editor
-2. Copy the contents of `pine/ocean-wave-v3.1.pine`
+2. Copy the contents of `pine/ocean-wave-v3.2.pine`
 3. Paste into Pine Editor
 4. Click "Add to chart"
-5. Choose a preset (Scalping / Swing / Position) or customize manually
-6. Enable MTF mode to see higher timeframe trend
+5. Preset auto-detects from chart timeframe (or choose manually: Scalping / Swing / Position)
+6. Enable MTF mode to see higher timeframe trend with dynamic tint intensity
+
+### v3.1 — Wave Visualizer + MTF + Presets
 
 ### v3.0 — Wave Visualizer (stable)
 
@@ -93,7 +95,8 @@ ocean-wave-indicator/
 │   ├── ISSUE_TEMPLATE/
 │   └── PULL_REQUEST_TEMPLATE.md
 ├── pine/
-│   ├── ocean-wave-v3.1.pine       # Wave Visualizer + MTF + Presets (latest)
+│   ├── ocean-wave-v3.2.pine       # Wave Visualizer + Auto-Preset + Dynamic HTF (latest)
+│   ├── ocean-wave-v3.1.pine       # Wave Visualizer + MTF + Presets
 │   ├── ocean-wave-v3.0.pine       # Wave Visualizer (stable)
 │   ├── ocean-wave-v2.1.pine       # Classic zones with tables (legacy)
 │   ├── ocean-wave-lite-v2.1.pine  # Lite zone-only (legacy)
@@ -129,7 +132,8 @@ Ocean Wave includes ocean-themed alerts:
 ## 🎨 Customization
 
 - **Wave Intensity** — control wave height (0.5x to 3.0x)
-- **Presets** — Scalping (fast), Swing (default), Position (slow) — one-click setup
+- **Presets** — Auto (detects from chart timeframe), Scalping (fast), Swing (default), Position (slow) — one-click setup
+- **Dynamic HTF Tint** — MTF background tint intensity scales with HTF trend strength (stronger HTF = more visible)
 - **Multi-Timeframe** — see higher timeframe trend as background tint + label
 - **Smooth Color Transitions** — gradual color shifts between trend states
 - **Ocean Colors** — fully customizable palette
@@ -172,5 +176,5 @@ Built with ❤️ by the Ocean View team. Not financial advice. DYOR.
 - ✅ v2.1 — Confidence smoothing + 11 alert conditions
 - ✅ v3.0 — Wave visualizer with ocean colors, 3-layer depth, no tables
 - ✅ v3.1 — Multi-timeframe mode + preset dropdowns + smooth color transitions
-- 🔵 v3.2 — Preset refinements + mobile-optimized view
-- 🔵 v4.0 — Animated wave transitions
+- ✅ v3.2 — Auto-preset detection + dynamic HTF tint + combined security calls + alert summary
+- 🔵 v4.0 — Animated wave transitions + true color interpolation

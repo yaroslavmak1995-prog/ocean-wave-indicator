@@ -1,5 +1,27 @@
 # CHANGELOG — Ocean Wave Indicator
 
+## v3.2 (2026-08-18) — Auto-Preset + Dynamic HTF Tint + Performance
+
+### Added
+- **Auto-preset detection** — new "Auto" preset option automatically selects Scalping/Swing/Position based on chart timeframe (1m-5m → Scalping, 15m-2H → Swing, 4H+ → Position). Users can still override manually.
+- **Dynamic HTF background tint** — MTF background transparency now scales with HTF trend strength. Stronger HTF trend = more visible tint (88-95% transparency range). Previously fixed at 92%.
+- **HTF strength in label** — HTF label now includes strength percentage (e.g., "🌊 HTF Rising Tide (72%)")
+- **Preset indicator in trend label** — trend label shows active preset icon (⚡ Scalping, 📊 Swing, 🎯 Position) when non-default preset is active
+- **Alert summary in code comments** — all 11 alerts listed in header comment block for developer reference
+
+### Changed
+- **Combined MTF security calls** — 4 separate `request.security()` calls merged into single tuple return for better performance. Previously: 4 calls (htf_ma_fast, htf_ma_slow, htf_rsi, htf_dmi). Now: 1 call returning 6 values.
+- **Preset dropdown options** — added "Auto" as first option (was: Default, Scalping, Swing, Position; now: Auto, Default, Scalping, Swing, Position)
+
+### Performance
+- 4 `request.security()` calls → 1 tuple call — reduces Pine Script execution overhead
+- Same algorithm, same results, fewer network round-trips to TradingView servers
+
+### Addresses
+- Implements v3.2 items from Sprint 5 autonomous work plan
+- Performance optimization candidate from v3.1 technical review
+- Auto-detection idea from v3.1 ideas list
+
 ## v3.1 (2026-08-17) — Multi-Timeframe + Presets + Color Transitions
 
 ### Added
