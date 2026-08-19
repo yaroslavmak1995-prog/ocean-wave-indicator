@@ -26,9 +26,13 @@ This project is an open-source trading visualization indicator. We welcome contr
 ### 💻 Write Code
 
 #### Pine Script
-- Main indicator: `pine/ocean-wave-v2.1.pine`
-- Lite version: `pine/ocean-wave-lite-v2.1.pine`
-- Test on [TradingView](https://www.tradingview.com/) before submitting
+- **Latest:** `pine/ocean-wave-v3.2.pine` — Auto-preset + MTF + Dynamic HTF Tint + 9 factors fused into ocean wave visual
+- v3.1: `pine/ocean-wave-v3.1.pine` — MTF + Presets + Color Transitions
+- v3.0: `pine/ocean-wave-v3.0.pine` — Pure wave visualizer (base repackage)
+- v2.1: `pine/ocean-wave-v2.1.pine` — Confidence smoothing + zone alerts (legacy)
+- Lite v2.1: `pine/ocean-wave-lite-v2.1.pine` — Simplified version (legacy)
+- **Test on [TradingView](https://www.tradingview.com/)** before submitting — paste code into Pine Editor, "Add to chart", verify visuals
+- **v3.2 is a superset of v3.0 and v3.1** — use v3.2 for all new work
 
 #### Python
 - Reference algorithm: `python/nonuple_algorithm.py`
@@ -49,6 +53,15 @@ cd ocean-wave-indicator
 python python/validate_pine_csv.py
 ```
 
+## Testing on TradingView
+
+v3.2 introduces features that can only be verified on TradingView:
+
+1. **Auto-preset detection** — open charts on different timeframes (5m, 1H, 1D), set Preset to "Auto", verify it selects the right preset (Scalping/Swing/Position)
+2. **Dynamic HTF tint** — enable "Show Higher Timeframe Trend" + "Show HTF Background Tint", verify the background transparency changes with HTF trend strength
+3. **Combined request.security()** — v3.2 uses a single tuple `request.security()` call instead of 4 separate calls. Verify MTF data displays correctly
+4. **Alert conditions** — v3.2 has 11 alert conditions. Test each by setting alerts and triggering them on historical data
+
 ## Pull Request Process
 
 1. Create a branch: `git checkout -b feature/your-feature-name`
@@ -64,7 +77,9 @@ python python/validate_pine_csv.py
 - Use `camelCase` for variable names
 - Comment sections with `// === Section Name ===`
 - Keep indicator inputs grouped at the top
-- Include `//@version=5` as first line
+- Include `//@version=6` as first line (v3.x uses Pine v6)
+- Use `input.string()` with options for dropdowns (e.g., presets)
+- Use tuple `request.security()` for MTF data (performance best practice)
 
 ### Python
 - Follow PEP 8
