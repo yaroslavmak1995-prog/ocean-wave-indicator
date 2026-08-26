@@ -15,7 +15,7 @@ Ocean Wave turns price action into flowing ocean waves. No patterns to learn. No
 
 ## ⚡ Try It in 30 Seconds
 
-1. **Open** the [TradingView indicator page](https://www.tradingview.com/script/4ZzTlQct-Ocean-Wave-9-Factor-Trend-Visualization/)
+1. **Open** the [TradingView indicator page](https://www.tradingview.com/script/eH9fI7LV-9-in-1-trend-wave-visualizer/)
 2. **Click** "Add to chart" (free TradingView account required)
 3. **See** ocean waves — cyan = rising tide, indigo = undertow, slate = calm waters
 
@@ -62,7 +62,8 @@ You don't need to read 9 indicators. The ocean does it for you.
 - **Wave height:** Trend strength (bigger waves = stronger trend)
 - **3-layer depth:** Surface + deep + floor waves for ocean depth effect
 - **Minimal label:** Just "🌊 Rising Tide" or "🌀 Undertow" — no numbers
-- **No tables, no factor breakdowns, no clutter**
+- **9-Factor Table** (optional, ON by default) — each factor with live signal (🟢/🔴/⚪) and value, so you always know WHY the wave looks the way it does
+- **Clean chart mode** — disable table for pure wave visual
 
 ## 🚀 Installation (TradingView)
 
@@ -161,7 +162,7 @@ Mozilla Public License 2.0 — use freely, modify, share.
 ## 🔗 Links
 
 - [Ocean View App](https://yaroslavmak1995-prog.github.io/ocean-view-app/) — Web dashboard
-- [TradingView](https://www.tradingview.com/script/4ZzTlQct-Ocean-Wave-9-Factor-Trend-Visualization/) — Install indicator
+- [TradingView](https://www.tradingview.com/script/eH9fI7LV-9-in-1-trend-wave-visualizer/) — Install indicator
 - [Algorithm Documentation](docs/algorithm.md)
 - [Backtest Results](docs/backtest-results.md)
 - [Validation Results](docs/validation-results.md)
