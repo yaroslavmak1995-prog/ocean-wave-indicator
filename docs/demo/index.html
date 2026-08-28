@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocean Wave — 9-in-1 Trend Visualizer 🌊</title>
+<meta name="description" content="See the market like ocean waves. 9 factors fused into 1 visual. No patterns to learn.">
+<style>
+:root {
+  --bg: #0a0e17;
+  --bg-card: #0f172a;
+  --bg-card-2: #1e293b;
+  --border: #1e293b;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-bright: #f8fafc;
+  --cyan: #06b6d4;
+  --teal: #0891b2;
+  --indigo: #6366f1;
+  --violet: #3730a3;
+  --slate: #64748b;
+  --green: #10b981;
+  --red: #ef4444;
+  --orange: #f59e0b;
+  --yellow: #eab308;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+.hero {
+  text-align: center;
+  padding: 3rem 1.5rem 2rem;
+  background: radial-gradient(ellipse at 50% 0%, rgba(6,182,212,0.08) 0%, transparent 60%);
+}
+.hero h1 {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  color: var(--text-bright);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+.hero h1 span { color: var(--cyan); }
+.hero p {
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: var(--text-dim);
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+}
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.badge {
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.badge.green { border-color: var(--green); color: var(--green); }
+.badge.cyan { border-color: var(--cyan); color: var(--cyan); }
+.chart-container {
+  max-width: 1000px;
+  margin: 1rem auto;
+  padding: 0 1rem;
+}
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.chart-title {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+.chart-title strong { color: var(--text-bright); }
+.chart-ticker {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  font-size: 0.85rem;
+}
+.ticker-btn {
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.ticker-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.ticker-btn.active { border-color: var(--cyan); color: var(--cyan); background: rgba(6,182,212,0.1); }
+canvas#waveChart {
+  display: block;
+  width: 100%;
+  height: 380px;
+}
+.table-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 1rem auto;
+  max-width: 1000px;
+  overflow: hidden;
+}
+.table-header {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.table-header h3 { font-size: 0.95rem; color: var(--text-bright); }
+.table-header .zone-tag {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-weight: 600;
+}
+.zone-bull { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+.zone-bear { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.zone-neutral { background: rgba(100,116,139,0.15); color: var(--slate); border: 1px solid rgba(100,116,139,0.3); }
+.factor-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.factor-table th {
+  background: var(--bg-card-2);
+  padding: 0.6rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+}
+.factor-table td {
+  padding: 0.65rem 1rem;
+  font-size: 0.85rem;
+  border-bottom: 1px solid rgba(30,41,59,0.5);
+}
+.factor-table td:first-child { color: var(--text-dim); }
+.factor-table td.signal { font-weight: 600; }
+.signal-bull { color: var(--green); }
+.signal-bear { color: var(--red); }
+.signal-neutral { color: var(--slate); }
+.signal-warn { color: var(--orange); }
+.factor-table tr:last-child td { border-bottom: none; }
+.summary-row td {
+  background: var(--bg-card-2);
+  font-weight: 700;
+  color: var(--text-bright);
+  font-size: 0.9rem !important;
+}
+.confidence-bar {
+  height: 6px;
+  background: var(--bg-card-2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.confidence-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease;
+}
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 1rem;
+  flex-wrap: wrap;
+}
+.preset-btn {
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.preset-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.preset-btn.active { border-color: var(--cyan); color: var(--cyan); background: rgba(6,182,212,0.1); }
+.cta-section {
+  text-align: center;
+  padding: 2rem 1.5rem 3rem;
+}
+.cta-section h2 {
+  font-size: 1.5rem;
+  color: var(--text-bright);
+  margin-bottom: 1rem;
+}
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.cta-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.cta-primary {
+  background: var(--cyan);
+  color: #0a0e17;
+}
+.cta-primary:hover { background: #0fcfe8; box-shadow: 0 4px 20px rgba(6,182,212,0.3); }
+.cta-secondary {
+  background: var(--bg-card-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.cta-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  max-width: 1000px;
+  margin: 0 auto 2rem;
+  padding: 0 1rem;
+}
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+}
+.feature-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.feature-card h3 { color: var(--text-bright); font-size: 1.1rem; margin-bottom: 0.5rem; }
+.feature-card p { color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; }
+footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+footer a { color: var(--cyan); text-decoration: none; }
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+@media (max-width: 600px) {
+  .factor-table td, .factor-table th { padding: 0.4rem 0.5rem; font-size: 0.75rem; }
+  canvas#waveChart { height: 250px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🌊 Ocean Wave — <span>9-in-1 Trend Visualizer</span></h1>
+  <p>See the market like ocean waves. 9 factors fused into 1 visual. No patterns to learn.</p>
+  <div class="badges">
+    <span class="badge cyan">Pine Script v6</span>
+    <span class="badge green">Open Source</span>
+    <span class="badge">9 Factors</span>
+    <span class="badge">11 Alerts</span>
+    <span class="badge">MIT License</span>
+  </div>
+</div>
+
+<div class="chart-container">
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title"><strong>🌊 Ocean Wave Demo</strong> — Synthetic Data</div>
+      <div class="chart-ticker">
+        <button class="ticker-btn active" data-ticker="BTC">BTCUSD</button>
+        <button class="ticker-btn" data-ticker="ETH">ETHUSD</button>
+        <button class="ticker-btn" data-ticker="AAPL">AAPL</button>
+        <button class="ticker-btn" data-ticker="TSLA">TSLA</button>
+        <div class="live-indicator"><span class="live-dot"></span> LIVE</div>
+      </div>
+    </div>
+    <canvas id="waveChart"></canvas>
+  </div>
+
+  <div class="controls">
+    <button class="preset-btn active" data-preset="swing">📊 Swing (Default)</button>
+    <button class="preset-btn" data-preset="scalping">⚡ Scalping</button>
+    <button class="preset-btn" data-preset="position">🎯 Position</button>
+  </div>
+</div>
+
+<div class="table-card" style="margin-top: -0.5rem;">
+  <div class="table-header">
+    <h3>📊 9-Factor Analysis</h3>
+    <span class="zone-tag zone-bull" id="zoneTag">🌊 Rising Tide</span>
+  </div>
+  <table class="factor-table" id="factorTable">
+    <thead>
+      <tr>
+        <th>Factor</th>
+        <th>Signal</th>
+        <th>Value</th>
+        <th>Strength</th>
+      </tr>
+    </thead>
+    <tbody id="factorBody"></tbody>
+  </table>
+</div>
+
+<div class="features">
+  <div class="feature-card">
+    <div class="icon">🌊</div>
+    <h3>Visual, Not Numerical</h3>
+    <p>Ocean wave metaphor replaces boring indicator panels. See trend direction at a glance.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">🔬</div>
+    <h3>9 Factors Fused</h3>
+    <p>MA, Volume, RSI, ADX, MACD, ATR, Bollinger Bands, Stochastic, and Synergy — all in one visual.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">⚡</div>
+    <h3>11 Smart Alerts</h3>
+    <p>Tide Rising, Undertow, Wave Alignment, HTF Trend Change — ocean-themed, not jargon.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">🎯</div>
+    <h3>Auto-Preset Detection</h3>
+    <p>Scalping, Swing, or Position — the indicator auto-detects your timeframe and adjusts.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">📊</div>
+    <h3>Multi-Timeframe</h3>
+    <p>See the higher timeframe trend without switching charts. HTF tint shows the big picture.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">🔓</div>
+    <h3>Open Source</h3>
+    <p>Full Pine Script v6 source code on GitHub. MIT License. No black box.</p>
+  </div>
+</div>
+
+<div class="cta-section">
+  <h2>Ready to see your charts differently?</h2>
+  <p style="color: var(--text-dim); margin-bottom: 1.5rem;">Get the Pine Script, paste into TradingView, and see the ocean.</p>
+  <div class="cta-buttons">
+    <a class="cta-btn cta-primary" href="https://github.com/yaroslavmak1995-prog/ocean-wave-indicator" target="_blank" rel="noopener">⭐ Star on GitHub</a>
+    <a class="cta-btn cta-secondary" href="https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/blob/main/README.md" target="_blank" rel="noopener">📖 Read the Docs</a>
+    <button class="cta-btn cta-secondary" id="copyBtn">📋 Copy Pine Script</button>
+  </div>
+</div>
+
+<footer>
+  <p>Ocean Wave Trend Visualizer v3.2 · <a href="https://github.com/yaroslavmak1995-prog/ocean-wave-indicator">GitHub</a> · MIT License</p>
+  <p style="margin-top: 0.5rem;">Built with ❤️ by <a href="https://github.com/yaroslavmak1995-prog">yaroslavmak1995-prog</a></p>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// OCEAN WAVE DEMO — Synthetic Data Visualization
+// ══════════════════════════════════════════════════════════════
+
+const TICKERS = {
+  BTC: { name: 'BTCUSD', basePrice: 62000, volatility: 0.025, trend: 0.0008 },
+  ETH: { name: 'ETHUSD', basePrice: 3200, volatility: 0.03, trend: 0.001 },
+  AAPL: { name: 'AAPL', basePrice: 220, volatility: 0.012, trend: 0.0003 },
+  TSLA: { name: 'TSLA', basePrice: 250, volatility: 0.035, trend: -0.0005 }
+};
+
+const PRESETS = {
+  scalping: { maFast: 9, maSlow: 21, rsiLen: 7, adxLen: 10, waveIntensity: 1.0, label: '⚡' },
+  swing: { maFast: 20, maSlow: 50, rsiLen: 14, adxLen: 14, waveIntensity: 1.5, label: '📊' },
+  position: { maFast: 50, maSlow: 200, rsiLen: 21, adxLen: 20, waveIntensity: 2.5, label: '🎯' }
+};
+
+let currentTicker = 'BTC';
+let currentPreset = 'swing';
+let priceData = [];
+let waveData = [];
+let animationFrame = 0;
+
+// Generate synthetic price data
+function generatePriceData(ticker, bars = 120) {
+  const config = TICKERS[ticker];
+  const data = [];
+  let price = config.basePrice;
+  
+  for (let i = 0; i < bars; i++) {
+    // Add some cyclicality + trend + noise
+    const cycle = Math.sin(i * 0.08) * config.volatility * 0.6;
+    const trend = config.trend;
+    const noise = (Math.random() - 0.5) * config.volatility;
+    price = price * (1 + cycle + trend + noise);
+    const high = price * (1 + Math.random() * 0.008);
+    const low = price * (1 - Math.random() * 0.008);
+    const volume = config.basePrice * 1000 * (0.5 + Math.random() * 1.5);
+    data.push({ close: price, high, low, volume, index: i });
+  }
+  return data;
+}
+
+// Simple indicator calculations
+function sma(data, period, key = 'close') {
+  const result = [];
+  for (let i = 0; i < data.length; i++) {
+    if (i < period - 1) { result.push(null); continue; }
+    let sum = 0;
+    for (let j = 0; j < period; j++) sum += data[i - j][key];
+    result.push(sum / period);
+  }
+  return result;
+}
+
+function ema(data, period) {
+  const result = [];
+  const k = 2 / (period + 1);
+  let prev = null;
+  for (let i = 0; i < data.length; i++) {
+    if (i < period - 1) { result.push(null); continue; }
+    if (i === period - 1) {
+      let sum = 0;
+      for (let j = 0; j < period; j++) sum += data[i - j];
+      prev = sum / period;
+      result.push(prev);
+    } else {
+      prev = data[i] * k + prev * (1 - k);
+      result.push(prev);
+    }
+  }
+  return result;
+}
+
+function rsi(data, period) {
+  const result = [];
+  let gains = 0, losses = 0;
+  for (let i = 0; i < data.length; i++) {
+    if (i === 0) { result.push(50); continue; }
+    const change = data[i] - data[i - 1];
+    const gain = Math.max(0, change);
+    const loss = Math.max(0, -change);
+    if (i <= period) {
+      gains += gain;
+      losses += loss;
+      if (i === period) {
+        gains /= period;
+        losses /= period;
+        result.push(100 - 100 / (1 + gains / (losses || 0.0001)));
+      } else {
+        result.push(50);
+      }
+    } else {
+      gains = (gains * (period - 1) + gain) / period;
+      losses = (losses * (period - 1) + loss) / period;
+      result.push(100 - 100 / (1 + gains / (losses || 0.0001)));
+    }
+  }
+  return result;
+}
+
+// Compute wave visualization
+function computeWaves(prices, preset) {
+  const p = PRESETS[preset];
+  const closes = prices.map(d => d.close);
+  
+  const maFast = sma(prices, p.maFast);
+  const maSlow = sma(prices, p.maSlow);
+  
+  // Calculate ATR (simplified)
+  const atrData = [];
+  for (let i = 0; i < prices.length; i++) {
+    if (i < 14) { atrData.push(closes[i] * 0.01); continue; }
+    const tr = Math.max(
+      prices[i].high - prices[i].low,
+      Math.abs(prices[i].high - closes[i - 1]),
+      Math.abs(prices[i].low - closes[i - 1])
+    );
+    atrData.push(atrData.reduce((a, b, idx) => idx >= i - 13 ? a + b : a, 0) / 14);
+  }
+  
+  // Wave boundaries
+  const waveIntensity = p.waveIntensity;
+  const waves = [];
+  for (let i = 0; i < prices.length; i++) {
+    const atr = atrData[i] || closes[i] * 0.01;
+    const maDiff = (maFast[i] || closes[i]) - (maSlow[i] || closes[i]);
+    const strength = Math.min(100, Math.abs(maDiff / (maSlow[i] || closes[i]) * 100) * 15 + 30);
+    const height = atr * waveIntensity * (strength / 100 + 0.3);
+    
+    waves.push({
+      top: closes[i] + height,
+      bottom: closes[i] - height,
+      topDeep: closes[i] + height * 1.6,
+      bottomDeep: closes[i] - height * 1.6,
+      topFloor: closes[i] + height * 2.4,
+      bottomFloor: closes[i] - height * 2.4,
+      maFast: maFast[i],
+      maSlow: maSlow[i],
+      strength: strength,
+      trend: maDiff > 0 ? 1 : maDiff < 0 ? -1 : 0
+    });
+  }
+  
+  // Smooth waves
+  const smoothPeriod = 8;
+  const smoothWaves = waves.map((w, i) => {
+    let sumTop = 0, sumBot = 0, sumTopD = 0, sumBotD = 0, sumTopF = 0, sumBotF = 0, count = 0;
+    for (let j = Math.max(0, i - smoothPeriod); j <= i; j++) {
+      sumTop += waves[j].top; sumBot += waves[j].bottom;
+      sumTopD += waves[j].topDeep; sumBotD += waves[j].bottomDeep;
+      sumTopF += waves[j].topFloor; sumBotF += waves[j].bottomFloor;
+      count++;
+    }
+    return {
+      ...w,
+      top: sumTop / count, bottom: sumBot / count,
+      topDeep: sumTopD / count, bottomDeep: sumBotD / count,
+      topFloor: sumTopF / count, bottomFloor: sumBotF / count
+    };
+  });
+  
+  return { waves: smoothWaves, maFast, maSlow, atr: atrData };
+}
+
+// Compute 9 factors
+function compute9Factors(prices, preset) {
+  const p = PRESETS[preset];
+  const closes = prices.map(d => d.close);
+  const vols = prices.map(d => d.volume);
+  
+  const maFast = sma(prices, p.maFast);
+  const maSlow = sma(prices, p.maSlow);
+  const rsiData = rsi(closes, p.rsiLen);
+  const avgVol = sma(prices, 20, 'volume');
+  
+  const lastIdx = prices.length - 1;
+  const maDiffPct = ((maFast[lastIdx] - maSlow[lastIdx]) / maSlow[lastIdx] * 100);
+  const baseTrend = maDiffPct > 0.5 ? 1 : maDiffPct < -0.5 ? -1 : 0;
+  const volumeRatio = avgVol[lastIdx] ? vols[lastIdx] / avgVol[lastIdx] : 1;
+  const rsiVal = rsiData[lastIdx] || 50;
+  
+  // Simple ADX approximation
+  const adxVal = 15 + Math.abs(maDiffPct) * 5 + Math.random() * 10;
+  const adxBull = baseTrend > 0;
+  
+  // MACD
+  const macdFast = ema(closes, 12);
+  const macdSlow = ema(closes, 26);
+  const macdLine = macdFast.map((v, i) => v - macdSlow[i]);
+  const macdSignal = ema(macdLine.filter(v => v !== null), 9);
+  const macdHist = macdLine[lastIdx] - (macdSignal[macdSignal.length - 1] || 0);
+  
+  // ATR
+  const atrPct = (prices[lastIdx].high - prices[lastIdx].low) / closes[lastIdx] * 100;
+  
+  // Bollinger
+  const bbBasis = maSlow[lastIdx] || closes[lastIdx];
+  const bbRange = bbBasis * 0.04;
+  const bbPercentB = (closes[lastIdx] - (bbBasis - bbRange)) / (bbRange * 2);
+  const bbBandwidth = bbRange / bbBasis * 100;
+  
+  // Stochastic
+  const stochLow = Math.min(...prices.slice(-p.rsiLen).map(d => d.low));
+  const stochHigh = Math.max(...prices.slice(-p.rsiLen).map(d => d.high));
+  const stochK = stochHigh > stochLow ? 100 * (closes[lastIdx] - stochLow) / (stochHigh - stochLow) : 50;
+  
+  // Synergy
+  let agree = 0;
+  if (baseTrend === 1 && rsiVal >= 50) agree++;
+  if (baseTrend === -1 && rsiVal <= 50) agree++;
+  if (baseTrend === 1 && adxBull) agree++;
+  if (baseTrend === -1 && !adxBull) agree++;
+  if (baseTrend !== 0 && atrPct <= 3) agree++;
+  if (baseTrend === 1 && bbPercentB > 0.5) agree++;
+  if (baseTrend === -1 && bbPercentB < 0.5) agree++;
+  if (baseTrend === 1 && stochK > 50) agree++;
+  if (baseTrend === -1 && stochK < 50) agree++;
+  
+  const strength = Math.min(100, Math.abs(maDiffPct) * 15 + 30);
+  const synergyBonus = agree >= 4 ? 10 : 0;
+  const totalStrength = Math.min(100, strength + synergyBonus);
+  
+  return {
+    ma: { signal: baseTrend === 1 ? '🟢 Bull' : baseTrend === -1 ? '🔴 Bear' : '⚪ Neutral', value: `${maDiffPct.toFixed(2)}%`, strength: Math.abs(maDiffPct * 15).toFixed(0) },
+    volume: { signal: volumeRatio > 1.5 ? '🟢 High' : volumeRatio < 0.8 ? '🔴 Low' : '⚪ Normal', value: `${(volumeRatio * 100).toFixed(0)}%`, strength: `${(volumeRatio * 100).toFixed(0)}%` },
+    rsi: { signal: rsiVal >= 70 ? '🔴 Overbought' : rsiVal <= 30 ? '🟢 Oversold' : rsiVal >= 50 ? '🟢 Bullish' : '🔴 Bearish', value: rsiVal.toFixed(0), strength: rsiVal.toFixed(0) },
+    adx: { signal: adxVal >= 25 ? (adxBull ? '🟢 Strong Bull' : '🔴 Strong Bear') : adxVal >= 15 ? '⚪ Weak' : '🔴 No Trend', value: adxVal.toFixed(0), strength: adxVal.toFixed(0) },
+    macd: { signal: macdHist > 0 ? '🟢 Bull' : '🔴 Bear', value: macdHist.toFixed(2), strength: macdHist.toFixed(2) },
+    atr: { signal: atrPct > 5 ? '🔴 Very High' : atrPct > 3 ? '🟠 High' : atrPct < 1 ? '🟢 Low' : '⚪ Normal', value: `${atrPct.toFixed(2)}%`, strength: `${atrPct.toFixed(2)}%` },
+    bb: { signal: bbBandwidth < 3 ? '🔴 Squeeze' : bbBandwidth < 5 ? '🟠 Tight' : bbBandwidth > 10 ? '🟢 Expanding' : '⚪ Normal', value: `${bbBandwidth.toFixed(2)}%`, strength: `${bbBandwidth.toFixed(2)}%` },
+    stoch: { signal: stochK >= 80 ? '🔴 Overbought' : stochK <= 20 ? '🟢 Oversold' : stochK >= 60 ? '🟢 Bullish' : stochK <= 40 ? '🔴 Bearish' : '⚪ Neutral', value: `${stochK.toFixed(0)}/100`, strength: `${stochK.toFixed(0)}` },
+    synergy: { signal: agree >= 4 ? `🟢 Aligned (${agree}/6)` : `⚪ Partial (${agree}/6)`, value: `+${synergyBonus}`, strength: `+${synergyBonus}` },
+    total: { strength: totalStrength.toFixed(0), trend: baseTrend, label: baseTrend === 1 ? (totalStrength >= 70 ? '🌊 Rising Tide' : '📈 Flowing Up') : baseTrend === -1 ? (totalStrength >= 70 ? '🌀 Undertow' : '📉 Falling') : '～ Calm Waters' }
+  };
+}
+
+// Draw chart
+function drawChart() {
+  const canvas = document.getElementById('waveChart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  
+  const W = rect.width;
+  const H = rect.height;
+  
+  // Background
+  ctx.fillStyle = '#0a0e17';
+  ctx.fillRect(0, 0, W, H);
+  
+  if (priceData.length === 0) return;
+  
+  const prices = priceData.map(d => d.close);
+  const allWaveTops = waveData.flatMap(w => [w.topFloor, w.topDeep, w.top]);
+  const allWaveBots = waveData.flatMap(w => [w.bottomFloor, w.bottomDeep, w.bottom]);
+  const minPrice = Math.min(...prices, ...allWaveBots);
+  const maxPrice = Math.max(...prices, ...allWaveTops);
+  const priceRange = maxPrice - minPrice;
+  const padding = priceRange * 0.05;
+  
+  const xScale = (W - 80) / (priceData.length - 1);
+  const yScale = (H - 40) / (priceRange + padding * 2);
+  const xOffset = 60;
+  const yOffset = 20;
+  
+  const toX = (i) => xOffset + i * xScale;
+  const toY = (p) => H - yOffset - (p - minPrice + padding) * yScale;
+  
+  // Grid lines
+  ctx.strokeStyle = 'rgba(30, 41, 59, 0.5)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = yOffset + (H - 2 * yOffset) * i / 5;
+    ctx.beginPath();
+    ctx.moveTo(xOffset, y);
+    ctx.lineTo(W - 20, y);
+    ctx.stroke();
+    const priceLabel = maxPrice - (priceRange + padding * 2) * i / 5;
+    ctx.fillStyle = '#475569';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(priceLabel.toFixed(0), xOffset - 5, y + 3);
+  }
+  
+  // Determine trend for coloring
+  const lastWave = waveData[waveData.length - 1];
+  const isBull = lastWave.trend > 0;
+  const isBear = lastWave.trend < 0;
+  
+  const colorSurface = isBull ? 'rgba(6, 182, 212, 0.15)' : isBear ? 'rgba(99, 102, 241, 0.15)' : 'rgba(100, 116, 139, 0.12)';
+  const colorDeep = isBull ? 'rgba(8, 145, 178, 0.10)' : isBear ? 'rgba(55, 48, 163, 0.10)' : 'rgba(71, 85, 105, 0.08)';
+  const colorFloor = isBull ? 'rgba(8, 145, 178, 0.06)' : isBear ? 'rgba(55, 48, 163, 0.06)' : 'rgba(71, 85, 105, 0.05)';
+  
+  const lineSurface = isBull ? 'rgba(6, 182, 212, 0.6)' : isBear ? 'rgba(99, 102, 241, 0.6)' : 'rgba(100, 116, 139, 0.5)';
+  const lineDeep = isBull ? 'rgba(8, 145, 178, 0.4)' : isBear ? 'rgba(55, 48, 163, 0.4)' : 'rgba(71, 85, 105, 0.35)';
+  const lineFloor = isBull ? 'rgba(8, 145, 178, 0.25)' : isBear ? 'rgba(55, 48, 163, 0.25)' : 'rgba(71, 85, 105, 0.2)';
+  
+  // Draw floor wave (back)
+  ctx.fillStyle = colorFloor;
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(waveData[0].topFloor));
+  for (let i = 1; i < waveData.length; i++) ctx.lineTo(toX(i), toY(waveData[i].topFloor));
+  for (let i = waveData.length - 1; i >= 0; i--) ctx.lineTo(toX(i), toY(waveData[i].bottomFloor));
+  ctx.closePath();
+  ctx.fill();
+  
+  ctx.strokeStyle = lineFloor;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(waveData[0].topFloor));
+  for (let i = 1; i < waveData.length; i++) ctx.lineTo(toX(i), toY(waveData[i].topFloor));
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(waveData[0].bottomFloor));
+  for (let i = 1; i < waveData.length; i++) ctx.lineTo(toX(i), toY(waveData[i].bottomFloor));
+  ctx.stroke();
+  
+  // Draw deep wave
+  ctx.fillStyle = colorDeep;
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(waveData[0].topDeep));
+  for (let i = 1; i < waveData.length; i++) ctx.lineTo(toX(i), toY(waveData[i].topDeep));
+  for (let i = waveData.length - 1; i >= 0; i--) ctx.lineTo(toX(i), toY(waveData[i].bottomDeep));
+  ctx.closePath();
+  ctx.fill();
+  
+  ctx.strokeStyle = lineDeep;
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(waveData[0].topDeep));
+  for (let i = 1; i < waveData.length; i++) ctx.lineTo(toX(i), toY(waveData[i].topDeep));
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(waveData[0].bottomDeep));
+  for (let i = 1; i < waveData.length; i++) ctx.lineTo(toX(i), toY(waveData[i].bottomDeep));
+  ctx.stroke();
+  
+  // Draw surface wave (front)
+  ctx.fillStyle = colorSurface;
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(waveData[0].top));
+  for (let i = 1; i < waveData.length; i++) ctx.lineTo(toX(i), toY(waveData[i].top));
+  for (let i = waveData.length - 1; i >= 0; i--) ctx.lineTo(toX(i), toY(waveData[i].bottom));
+  ctx.closePath();
+  ctx.fill();
+  
+  ctx.strokeStyle = lineSurface;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(waveData[0].top));
+  for (let i = 1; i < waveData.length; i++) ctx.lineTo(toX(i), toY(waveData[i].top));
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(waveData[0].bottom));
+  for (let i = 1; i < waveData.length; i++) ctx.lineTo(toX(i), toY(waveData[i].bottom));
+  ctx.stroke();
+  
+  // Price line
+  ctx.strokeStyle = '#f8fafc';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(prices[0]));
+  for (let i = 1; i < prices.length; i++) ctx.lineTo(toX(i), toY(prices[i]));
+  ctx.stroke();
+  
+  // Current price dot
+  const lastX = toX(prices.length - 1);
+  const lastY = toY(prices[prices.length - 1]);
+  ctx.fillStyle = isBull ? '#06b6d4' : isBear ? '#6366f1' : '#64748b';
+  ctx.beginPath();
+  ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Trend label
+  ctx.fillStyle = isBull ? '#06b6d4' : isBear ? '#6366f1' : '#64748b';
+  ctx.font = 'bold 13px sans-serif';
+  ctx.textAlign = 'left';
+  const label = lastWave.trend > 0 ? '🌊 Rising Tide' : lastWave.trend < 0 ? '🌀 Undertow' : '～ Calm';
+  ctx.fillText(label, lastX - 80, lastY - 12);
+  
+  // Price label
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(`${TICKERS[currentTicker].name} ${prices[prices.length - 1].toFixed(2)}`, 10, 20);
+}
+
+// Update factor table
+function updateFactorTable() {
+  const factors = compute9Factors(priceData, currentPreset);
+  const body = document.getElementById('factorBody');
+  
+  const rows = [
+    { name: `1. MA Crossover (${PRESETS[currentPreset].maFast}/${PRESETS[currentPreset].maSlow})`, ...factors.ma },
+    { name: '2. Volume (vs 20-avg)', ...factors.volume },
+    { name: `3. RSI (${PRESETS[currentPreset].rsiLen})`, ...factors.rsi },
+    { name: `4. ADX (${PRESETS[currentPreset].adxLen})`, ...factors.adx },
+    { name: '5. MACD (12/26)', ...factors.macd },
+    { name: '6. ATR Volatility', ...factors.atr },
+    { name: '7. Bollinger Bands', ...factors.bb },
+    { name: '8. Stochastic', ...factors.stoch },
+    { name: '9. Synergy Bonus', ...factors.synergy }
+  ];
+  
+  body.innerHTML = rows.map(r => {
+    const signalClass = r.signal.includes('🟢') ? 'signal-bull' : r.signal.includes('🔴') ? 'signal-bear' : r.signal.includes('🟠') ? 'signal-warn' : 'signal-neutral';
+    return `<tr>
+      <td>${r.name}</td>
+      <td class="signal ${signalClass}">${r.signal}</td>
+      <td>${r.value}</td>
+      <td>${r.strength}</td>
+    </tr>`;
+  }).join('') + `<tr class="summary-row">
+    <td>📋 TOTAL</td>
+    <td class="signal ${factors.total.trend === 1 ? 'signal-bull' : factors.total.trend === -1 ? 'signal-bear' : 'signal-neutral'}">${factors.total.label}</td>
+    <td>${factors.total.strength}%</td>
+    <td>—</td>
+  </tr>`;
+  
+  // Update zone tag
+  const zoneTag = document.getElementById('zoneTag');
+  if (factors.total.trend === 1) {
+    zoneTag.className = 'zone-tag zone-bull';
+    zoneTag.textContent = factors.total.label;
+  } else if (factors.total.trend === -1) {
+    zoneTag.className = 'zone-tag zone-bear';
+    zoneTag.textContent = factors.total.label;
+  } else {
+    zoneTag.className = 'zone-tag zone-neutral';
+    zoneTag.textContent = factors.total.label;
+  }
+}
+
+// Animate — add new bar, shift data
+function tick() {
+  const config = TICKERS[currentTicker];
+  const last = priceData[priceData.length - 1];
+  const cycle = Math.sin(animationFrame * 0.08) * config.volatility * 0.6;
+  const trend = config.trend;
+  const noise = (Math.random() - 0.5) * config.volatility;
+  const newPrice = last.close * (1 + cycle + trend + noise);
+  
+  priceData.shift();
+  priceData.push({
+    close: newPrice,
+    high: newPrice * (1 + Math.random() * 0.008),
+    low: newPrice * (1 - Math.random() * 0.008),
+    volume: config.basePrice * 1000 * (0.5 + Math.random() * 1.5),
+    index: animationFrame
+  });
+  
+  const result = computeWaves(priceData, currentPreset);
+  waveData = result.waves;
+  
+  drawChart();
+  updateFactorTable();
+  animationFrame++;
+}
+
+// Initialize
+function init(ticker) {
+  currentTicker = ticker;
+  priceData = generatePriceData(ticker);
+  const result = computeWaves(priceData, currentPreset);
+  waveData = result.waves;
+  drawChart();
+  updateFactorTable();
+}
+
+// Event listeners
+document.querySelectorAll('.ticker-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    document.querySelectorAll('.ticker-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    init(e.target.dataset.ticker);
+  });
+});
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    currentPreset = e.target.dataset.preset;
+    const result = computeWaves(priceData, currentPreset);
+    waveData = result.waves;
+    drawChart();
+    updateFactorTable();
+  });
+});
+
+// Copy script button
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const btn = document.getElementById('copyBtn');
+  btn.textContent = '⏳ Loading script...';
+  fetch('https://raw.githubusercontent.com/yaroslavmak1995-prog/ocean-wave-indicator/main/pine/ocean-wave-v3.2.pine')
+    .then(r => r.text())
+    .then(text => {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = '✅ Copied! Paste into TradingView';
+        setTimeout(() => btn.textContent = '📋 Copy Pine Script', 3000);
+      }).catch(() => {
+        btn.textContent = '❌ Copy failed — visit GitHub';
+        setTimeout(() => btn.textContent = '📋 Copy Pine Script', 3000);
+      });
+    })
+    .catch(() => {
+      btn.textContent = '❌ Failed — visit GitHub';
+      setTimeout(() => btn.textContent = '📋 Copy Pine Script', 3000);
+    });
+});
+
+// Resize handler
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => drawChart(), 100);
+});
+
+// Start
+init('BTC');
+setInterval(tick, 2000);
+</script>
+
+</body>
+</html>
