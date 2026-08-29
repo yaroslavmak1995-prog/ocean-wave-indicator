@@ -65,6 +65,10 @@ You don't need to read 9 indicators. The ocean does it for you.
 - **9-Factor Table** (optional, ON by default) — each factor with live signal (🟢/🔴/⚪) and value, so you always know WHY the wave looks the way it does
 - **Clean chart mode** — disable table for pure wave visual
 
+## 🚀 Installation
+
+**⚡ 1-minute install guide:** See [`docs/1-minute-install.md`](docs/1-minute-install.md) for step-by-step with screenshots.
+
 ## 🚀 Installation (TradingView)
 
 ### v3.2 — Wave Visualizer + Auto-Preset + Dynamic HTF (latest)

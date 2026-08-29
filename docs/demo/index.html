@@ -320,6 +320,7 @@ footer a { color: var(--cyan); text-decoration: none; }
     <button class="preset-btn active" data-preset="swing">📊 Swing (Default)</button>
     <button class="preset-btn" data-preset="scalping">⚡ Scalping</button>
     <button class="preset-btn" data-preset="position">🎯 Position</button>
+    <button class="preset-btn" id="screenshotBtn">📸 Screenshot Mode</button>
   </div>
 </div>
 
@@ -884,6 +885,27 @@ document.querySelectorAll('.preset-btn').forEach(btn => {
 });
 
 // Copy script button
+// Screenshot mode — hide UI for clean capture
+document.getElementById('screenshotBtn').addEventListener('click', () => {
+  const btn = document.getElementById('screenshotBtn');
+  const elementsToToggle = document.querySelectorAll('.ticker-bar, .controls, .table-card, .features, .cta-section, .footer, .chart-header');
+  const isScreenshotMode = btn.classList.contains('active');
+  
+  if (isScreenshotMode) {
+    // Restore
+    elementsToToggle.forEach(el => el.style.display = '');
+    btn.classList.remove('active');
+    btn.textContent = '📸 Screenshot Mode';
+    document.body.style.background = 'var(--bg)';
+  } else {
+    // Hide everything except the chart
+    elementsToToggle.forEach(el => el.style.display = 'none');
+    btn.classList.add('active');
+    btn.textContent = '🔄 Exit Screenshot Mode';
+    document.body.style.background = '#0a0e17';
+  }
+});
+
 document.getElementById('copyBtn').addEventListener('click', () => {
   const btn = document.getElementById('copyBtn');
   btn.textContent = '⏳ Loading script...';
