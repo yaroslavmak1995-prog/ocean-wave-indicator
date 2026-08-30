@@ -237,6 +237,111 @@ canvas#waveChart {
   border: 1px solid var(--border);
 }
 .cta-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+/* Comparison section */
+.comparison-section {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.comparison-title {
+  text-align: center;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  color: var(--text-bright);
+  margin-bottom: 1.5rem;
+}
+.comparison-grid {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.comparison-side {
+  flex: 1;
+  min-width: 280px;
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+.comparison-side.chaos {
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.comparison-side.ocean {
+  background: rgba(6, 182, 212, 0.05);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+}
+.comparison-label {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.comparison-side.chaos .comparison-label { color: var(--red); }
+.comparison-side.ocean .comparison-label { color: var(--cyan); }
+.comparison-vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  padding: 0 1rem;
+}
+.chaos-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.chaos-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+  background: rgba(255,255,255,0.03);
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+.chaos-name { color: var(--text-dim); }
+.chaos-signal { font-weight: 600; font-size: 0.75rem; }
+.chaos-signal.buy { color: var(--green); }
+.chaos-signal.sell { color: var(--red); }
+.chaos-signal.neutral { color: var(--yellow); }
+.ocean-mini-demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 2rem 1rem;
+  min-height: 200px;
+}
+.ocean-wave-visual {
+  width: 100%;
+}
+.wave-bar {
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
+}
+.wave-bar.bullish {
+  background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(8,145,178,0.1));
+  border: 1px solid rgba(6,182,212,0.3);
+  color: var(--cyan);
+}
+.ocean-meta {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+.comparison-caption {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 1rem;
+  font-style: italic;
+}
 .features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -340,6 +445,38 @@ footer a { color: var(--cyan); text-decoration: none; }
     </thead>
     <tbody id="factorBody"></tbody>
   </table>
+</div>
+
+<div class="comparison-section">
+  <h2 class="comparison-title">Same Market. Less Noise.</h2>
+  <div class="comparison-grid">
+    <div class="comparison-side chaos">
+      <div class="comparison-label">😐 9 Separate Indicators</div>
+      <div class="chaos-panel">
+        <div class="chaos-row"><span class="chaos-name">MA(20/50)</span><span class="chaos-signal buy">↑ BUY</span></div>
+        <div class="chaos-row"><span class="chaos-name">RSI(14)</span><span class="chaos-signal sell">72 OVERBOUGHT</span></div>
+        <div class="chaos-row"><span class="chaos-name">MACD</span><span class="chaos-signal neutral">+0.5</span></div>
+        <div class="chaos-row"><span class="chaos-name">ADX(14)</span><span class="chaos-signal sell">18 WEAK</span></div>
+        <div class="chaos-row"><span class="chaos-name">Volume</span><span class="chaos-signal buy">1.2x</span></div>
+        <div class="chaos-row"><span class="chaos-name">BB(20,2)</span><span class="chaos-signal neutral">SQUEEZE</span></div>
+        <div class="chaos-row"><span class="chaos-name">Stoch</span><span class="chaos-signal sell">%K 85</span></div>
+        <div class="chaos-row"><span class="chaos-name">ATR</span><span class="chaos-signal neutral">0.85%</span></div>
+        <div class="chaos-row"><span class="chaos-name">MA(200)</span><span class="chaos-signal buy">↑</span></div>
+      </div>
+      <p class="comparison-caption">Which signal do you follow?</p>
+    </div>
+    <div class="comparison-vs">VS</div>
+    <div class="comparison-side ocean">
+      <div class="comparison-label">🌊 Ocean Wave — 1 Visual</div>
+      <div class="ocean-mini-demo">
+        <div class="ocean-wave-visual">
+          <div class="wave-bar bullish">🌊 Rising Tide — 72% confidence</div>
+        </div>
+        <div class="ocean-meta">Bullish · 6/9 factors agree · Synergy +10</div>
+      </div>
+      <p class="comparison-caption">See the flow. Decide with clarity.</p>
+    </div>
+  </div>
 </div>
 
 <div class="features">
@@ -888,7 +1025,7 @@ document.querySelectorAll('.preset-btn').forEach(btn => {
 // Screenshot mode — hide UI for clean capture
 document.getElementById('screenshotBtn').addEventListener('click', () => {
   const btn = document.getElementById('screenshotBtn');
-  const elementsToToggle = document.querySelectorAll('.ticker-bar, .controls, .table-card, .features, .cta-section, .footer, .chart-header');
+  const elementsToToggle = document.querySelectorAll('.ticker-bar, .controls, .table-card, .features, .cta-section, .footer, .chart-header, .comparison-section');
   const isScreenshotMode = btn.classList.contains('active');
   
   if (isScreenshotMode) {
