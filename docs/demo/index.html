@@ -342,6 +342,55 @@ canvas#waveChart {
   margin-top: 1rem;
   font-style: italic;
 }
+/* Animated chaos signals */
+@keyframes chaosFlicker {
+  0% { opacity: 1; }
+  10% { opacity: 0.4; }
+  20% { opacity: 1; }
+  30% { opacity: 0.6; }
+  40% { opacity: 1; }
+  50% { opacity: 0.3; }
+  60% { opacity: 1; }
+  70% { opacity: 0.7; }
+  80% { opacity: 1; }
+  90% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+@keyframes chaosSignalShift {
+  0%, 20% { content: '↑ BUY'; }
+  21%, 40% { content: '↓ SELL'; }
+  41%, 55% { content: '→ NEUTRAL'; }
+  56%, 70% { content: '↑ BUY'; }
+  71%, 85% { content: '↓ SELL'; }
+  86%, 100% { content: '→ NEUTRAL'; }
+}
+.chaos-panel {
+  animation: chaosFlicker 4s infinite;
+}
+.chaos-row:nth-child(2) { animation-delay: 0.3s; }
+.chaos-row:nth-child(3) { animation-delay: 0.7s; }
+.chaos-row:nth-child(4) { animation-delay: 1.1s; }
+.chaos-row:nth-child(5) { animation-delay: 0.5s; }
+.chaos-row:nth-child(6) { animation-delay: 1.4s; }
+.chaos-row:nth-child(7) { animation-delay: 0.9s; }
+.chaos-row:nth-child(8) { animation-delay: 1.6s; }
+.chaos-row:nth-child(9) { animation-delay: 0.2s; }
+/* Ocean side gentle breathing animation */
+@keyframes oceanBreathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); }
+  50% { transform: scale(1.02); box-shadow: 0 0 30px rgba(6, 182, 212, 0.25); }
+}
+.wave-bar.bullish {
+  animation: oceanBreathe 3s ease-in-out infinite;
+}
+/* Conflicting signal rotation via JS */
+.conflicting-signals {
+  font-size: 0.7rem;
+  color: var(--red);
+  text-align: center;
+  margin-top: 0.5rem;
+  opacity: 0.8;
+}
 .features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -464,6 +513,7 @@ footer a { color: var(--cyan); text-decoration: none; }
         <div class="chaos-row"><span class="chaos-name">MA(200)</span><span class="chaos-signal buy">↑</span></div>
       </div>
       <p class="comparison-caption">Which signal do you follow?</p>
+        <div class="conflicting-signals" id="chaosStatus">⚠ 4 say BUY · 3 say SELL · 2 say WAIT</div>
     </div>
     <div class="comparison-vs">VS</div>
     <div class="comparison-side ocean">
@@ -1045,6 +1095,26 @@ document.getElementById('screenshotBtn').addEventListener('click', () => {
 
 document.getElementById('copyBtn').addEventListener('click', () => {
   const btn = document.getElementById('copyBtn');
+  // Try embedded script first (works offline)
+  const embedded = document.getElementById('pineScriptEmbedded');
+  if (embedded && embedded.textContent) {
+    const text = embedded.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✅ Copied! Paste into TradingView';
+      setTimeout(() => btn.textContent = '📋 Copy Pine Script', 3000);
+    }).catch(() => {
+      // Fallback: select text for manual copy
+      const range = document.createRange();
+      range.selectNodeContents(embedded);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      btn.textContent = '📋 Selected — press Ctrl+C';
+      setTimeout(() => btn.textContent = '📋 Copy Pine Script', 3000);
+    });
+    return;
+  }
+  // Fallback: fetch from GitHub (requires internet)
   btn.textContent = '⏳ Loading script...';
   fetch('https://raw.githubusercontent.com/yaroslavmak1995-prog/ocean-wave-indicator/main/pine/ocean-wave-v3.2.pine')
     .then(r => r.text())
@@ -1058,7 +1128,7 @@ document.getElementById('copyBtn').addEventListener('click', () => {
       });
     })
     .catch(() => {
-      btn.textContent = '❌ Failed — visit GitHub';
+      btn.textContent = '❌ Offline — visit GitHub';
       setTimeout(() => btn.textContent = '📋 Copy Pine Script', 3000);
     });
 });
@@ -1073,7 +1143,701 @@ window.addEventListener('resize', () => {
 // Start
 init('BTC');
 setInterval(tick, 2000);
+
+// ═══════════════════════════════════════════════════════════════
+// CHAOS COMPARISON ANIMATION — Flickering conflicting signals
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  // Conflicting signal sets for chaos side
+  const signalSets = [
+    { ma: { text: '↑ BUY', cls: 'buy' }, rsi: { text: '72 OVERBOUGHT', cls: 'sell' }, macd: { text: '+0.5', cls: 'neutral' }, adx: { text: '18 WEAK', cls: 'sell' }, vol: { text: '1.2x', cls: 'buy' }, bb: { text: 'SQUEEZE', cls: 'neutral' }, stoch: { text: '%K 85', cls: 'sell' }, atr: { text: '0.85%', cls: 'neutral' }, ma200: { text: '↑', cls: 'buy' }, status: '⚠ 4 say BUY · 3 say SELL · 2 say WAIT' },
+    { ma: { text: '↓ SELL', cls: 'sell' }, rsi: { text: '45 NEUTRAL', cls: 'neutral' }, macd: { text: '-1.2', cls: 'sell' }, adx: { text: '32 STRONG', cls: 'buy' }, vol: { text: '0.6x', cls: 'sell' }, bb: { text: 'EXPANDING', cls: 'buy' }, stoch: { text: '%K 22', cls: 'buy' }, atr: { text: '2.1%', cls: 'neutral' }, ma200: { text: '↓', cls: 'sell' }, status: '⚠ 3 say BUY · 4 say SELL · 2 say WAIT' },
+    { ma: { text: '→ NEUTRAL', cls: 'neutral' }, rsi: { text: '55 BULLISH', cls: 'buy' }, macd: { text: '+0.2', cls: 'buy' }, adx: { text: '12 NO TREND', cls: 'sell' }, vol: { text: '0.9x', cls: 'neutral' }, bb: { text: 'TIGHT', cls: 'neutral' }, stoch: { text: '%K 50', cls: 'neutral' }, atr: { text: '1.3%', cls: 'neutral' }, ma200: { text: '→', cls: 'neutral' }, status: '⚠ 2 say BUY · 1 say SELL · 6 say WAIT' },
+    { ma: { text: '↑ BUY', cls: 'buy' }, rsi: { text: '68 BULLISH', cls: 'buy' }, macd: { text: '-0.3', cls: 'sell' }, adx: { text: '28 STRONG', cls: 'buy' }, vol: { text: '1.8x', cls: 'buy' }, bb: { text: 'SQUEEZE', cls: 'neutral' }, stoch: { text: '%K 78', cls: 'sell' }, atr: { text: '1.8%', cls: 'neutral' }, ma200: { text: '↑', cls: 'buy' }, status: '⚠ 5 say BUY · 2 say SELL · 2 say WAIT' },
+  ];
+  
+  // Map chaos rows to signal keys
+  const rowKeys = ['ma', 'rsi', 'macd', 'adx', 'vol', 'bb', 'stoch', 'atr', 'ma200'];
+  const rowNames = ['MA(20/50)', 'RSI(14)', 'MACD', 'ADX(14)', 'Volume', 'BB(20,2)', 'Stoch', 'ATR', 'MA(200)'];
+  
+  let signalIdx = 0;
+  
+  function updateChaosSignals() {
+    const set = signalSets[signalIdx % signalSets.length];
+    const rows = document.querySelectorAll('.chaos-panel .chaos-row');
+    
+    rows.forEach((row, i) => {
+      if (i >= rowKeys.length) return;
+      const key = rowKeys[i];
+      const signal = set[key];
+      const nameEl = row.querySelector('.chaos-name');
+      const signalEl = row.querySelector('.chaos-signal');
+      
+      if (signalEl) {
+        // Fade transition
+        signalEl.style.transition = 'opacity 0.3s';
+        signalEl.style.opacity = '0.3';
+        setTimeout(() => {
+          signalEl.textContent = signal.text;
+          signalEl.className = 'chaos-signal ' + signal.cls;
+          signalEl.style.opacity = '1';
+        }, 150);
+      }
+    });
+    
+    // Update status line
+    const statusEl = document.getElementById('chaosStatus');
+    if (statusEl) {
+      statusEl.style.transition = 'opacity 0.3s';
+      statusEl.style.opacity = '0';
+      setTimeout(() => {
+        statusEl.textContent = set.status;
+        statusEl.style.opacity = '1';
+      }, 150);
+    }
+    
+    signalIdx++;
+  }
+  
+  // Cycle every 3 seconds
+  setInterval(updateChaosSignals, 3000);
+})();
 </script>
 
+
+<!-- Pine Script v3.2 embedded for offline copy -->
+<script type="text/plain" id="pineScriptEmbedded">// This Pine Script™ source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © Ocean View
+
+//@version=6
+indicator(&quot;Ocean Wave — Trend Visualizer 🌊&quot;, shorttitle=&quot;Ocean Wave&quot;, overlay=true, max_lines_count=500, max_labels_count=50, max_boxes_count=50)
+
+// ════════════════════════════════════════════════════════════════
+// OCEAN WAVE — Trend Visualizer v3.2
+// 
+// v3.2: Performance + Auto-Preset + Dynamic HTF Tint
+// v3.1: Multi-Timeframe + Color Transitions + Preset Dropdowns
+// v3.0: Complete repackage as Trend Visualizer (ocean wave metaphor)
+// 
+// See the market like ocean waves.
+// Bullish = rising tide. Bearish = undertow.
+// 9 factors fused into 1 visual. No patterns to learn.
+// Just the flow of the market, visualized.
+// ════════════════════════════════════════════════════════════════
+//
+// ─── ALERT SUMMARY ─────────────────────────────────────────────
+//  #  | Alert Name                      | Trigger
+// ----|---------------------------------|-------------------------------------------
+//  1  | 🌊 Tide Rising                  | Zone turns bullish (from neutral/bearish)
+//  2  | 🌀 Undertow                     | Zone turns bearish (from neutral/bullish)
+//  3  | 🔄 Tide Shift                    | Any zone change
+//  4  | ⚡ Strong Current                | Confidence crosses above 70
+//  5  | 🔥 High Energy                   | Total strength crosses above 80
+//  6  | 🌊 Wave Alignment                | 4+ factors agree (synergy)
+//  7  | 📊 HTF Trend Change              | Higher timeframe trend changes
+//  8  | 📊 HTF Tide Rising               | HTF turns bullish
+//  9  | 📊 HTF Undertow                  | HTF turns bearish
+// 10  | Confidence Cross Up              | Confidence crosses above threshold
+// 11  | Confidence Cross Down            | Confidence crosses below threshold
+// ──────────────────────────────────────────────────────────────
+
+// ─── INPUTS ────────────────────────────────────────────────────
+
+// MA Settings
+ma_fast_len = input.int(20, &quot;MA Fast Length&quot;, minval=5, maxval=50, group=&quot;Moving Averages&quot;)
+ma_slow_len = input.int(50, &quot;MA Slow Length&quot;, minval=10, maxval=200, group=&quot;Moving Averages&quot;)
+
+// RSI Settings
+rsi_len = input.int(14, &quot;RSI Length&quot;, minval=5, maxval=50, group=&quot;Momentum&quot;)
+rsi_ob = input.int(70, &quot;RSI Overbought&quot;, minval=50, maxval=95, group=&quot;Momentum&quot;)
+rsi_os = input.int(30, &quot;RSI Oversold&quot;, minval=5, maxval=50, group=&quot;Momentum&quot;)
+
+// ADX Settings
+adx_len = input.int(14, &quot;ADX Length&quot;, minval=5, maxval=50, group=&quot;Trend Strength&quot;)
+
+// MACD Settings
+macd_fast = input.int(12, &quot;MACD Fast&quot;, minval=5, maxval=30, group=&quot;Momentum&quot;)
+macd_slow = input.int(26, &quot;MACD Slow&quot;, minval=10, maxval=50, group=&quot;Momentum&quot;)
+macd_signal_len = input.int(9, &quot;MACD Signal&quot;, minval=3, maxval=20, group=&quot;Momentum&quot;)
+
+// Bollinger Bands Settings
+bb_len = input.int(20, &quot;BB Length&quot;, minval=5, maxval=50, group=&quot;Volatility&quot;)
+bb_mult = input.float(2.0, &quot;BB StdDev&quot;, minval=0.5, maxval=4.0, step=0.1, group=&quot;Volatility&quot;)
+
+// Stochastic Settings
+stoch_k_len = input.int(14, &quot;Stochastic %K Length&quot;, minval=5, maxval=50, group=&quot;Oscillator&quot;)
+stoch_d_len = input.int(3, &quot;Stochastic %D Smoothing&quot;, minval=1, maxval=10, group=&quot;Oscillator&quot;)
+stoch_smooth = input.int(3, &quot;Stochastic Smooth&quot;, minval=1, maxval=10, group=&quot;Oscillator&quot;)
+
+// Preset Dropdown — now with Auto option
+preset = input.string(&quot;Auto&quot;, &quot;Preset&quot;, options=[&quot;Auto&quot;, &quot;Default&quot;, &quot;Scalping&quot;, &quot;Swing&quot;, &quot;Position&quot;], group=&quot;🎯 Preset&quot;)
+auto_detect_text = preset == &quot;Auto&quot; ? &quot;Auto-detect from chart timeframe&quot; : &quot;Manual override&quot;
+// Subtle hint via tooltip-like display using a dummy plot
+
+// Multi-Timeframe Settings
+use_mtf = input.bool(false, &quot;Show Higher Timeframe Trend&quot;, group=&quot;📊 Multi-Timeframe&quot;)
+htf_timeframe = input.timeframe(&quot;D&quot;, &quot;Higher Timeframe&quot;, group=&quot;📊 Multi-Timeframe&quot;)
+show_mtf_label = input.bool(true, &quot;Show HTF Label&quot;, group=&quot;📊 Multi-Timeframe&quot;)
+show_mtf_bg = input.bool(true, &quot;Show HTF Background Tint&quot;, group=&quot;📊 Multi-Timeframe&quot;)
+
+// Factor Table
+show_factor_table = input.bool(true, &quot;Show 9-Factor Table&quot;, group=&quot;📊 Factor Display&quot;)
+
+// Visualization Settings
+show_wave = input.bool(true, &quot;Show Wave Visualization&quot;, group=&quot;🌊 Wave Display&quot;)
+wave_intensity = input.float(1.5, &quot;Wave Intensity (height multiplier)&quot;, minval=0.5, maxval=3.0, step=0.1, group=&quot;🌊 Wave Display&quot;)
+show_ma_lines = input.bool(false, &quot;Show MA Lines&quot;, group=&quot;🌊 Wave Display&quot;)
+show_label = input.bool(true, &quot;Show Trend Label&quot;, group=&quot;🌊 Wave Display&quot;)
+use_color_transitions = input.bool(true, &quot;Smooth Color Transitions&quot;, group=&quot;🌊 Wave Display&quot;)
+
+// Color palette — Ocean theme
+color_bullish_1 = input.color(#06b6d4, &quot;Bullish Wave (Cyan)&quot;, group=&quot;🎨 Colors&quot;)
+color_bullish_2 = input.color(#0891b2, &quot;Bullish Wave Deep (Teal)&quot;, group=&quot;🎨 Colors&quot;)
+color_bearish_1 = input.color(#6366f1, &quot;Bearish Wave (Indigo)&quot;, group=&quot;🎨 Colors&quot;)
+color_bearish_2 = input.color(#3730a3, &quot;Bearish Wave Deep (Violet)&quot;, group=&quot;🎨 Colors&quot;)
+color_neutral_1 = input.color(#64748b, &quot;Neutral Wave (Slate)&quot;, group=&quot;🎨 Colors&quot;)
+color_neutral_2 = input.color(#475569, &quot;Neutral Wave Deep&quot;, group=&quot;🎨 Colors&quot;)
+
+// Confidence Thresholds
+conf_high = input.int(50, &quot;High Confidence Threshold&quot;, group=&quot;Algorithm&quot;)
+conf_low = input.int(25, &quot;Low Confidence Threshold&quot;, group=&quot;Algorithm&quot;)
+
+// Confidence Smoothing
+use_confidence_smoothing = input.bool(true, &quot;Enable Confidence Smoothing (EMA)&quot;, group=&quot;Algorithm&quot;)
+confidence_ema_len = input.int(3, &quot;Confidence EMA Length&quot;, minval=1, maxval=10, group=&quot;Algorithm&quot;)
+max_conf_change = input.int(20, &quot;Max Confidence Change Per Bar (pp)&quot;, minval=5, maxval=50, group=&quot;Algorithm&quot;)
+
+// ─── PRESET AUTO-DETECTION ─────────────────────────────────────
+// Auto-detect preset from chart timeframe
+// 1m-5m → Scalping, 15m-1H → Swing, 4H-1D+ → Position
+_tf_period = timeframe.period
+_auto_preset = _tf_period == &quot;1&quot; or _tf_period == &quot;3&quot; or _tf_period == &quot;5&quot; ? &quot;Scalping&quot; : 
+   _tf_period == &quot;15&quot; or _tf_period == &quot;30&quot; or _tf_period == &quot;45&quot; or _tf_period == &quot;60&quot; or _tf_period == &quot;120&quot; ? &quot;Swing&quot; : 
+   &quot;Position&quot;
+
+_effective_preset = preset == &quot;Auto&quot; ? _auto_preset : preset
+
+// Apply preset-specific parameter overrides
+_preset_fast = _effective_preset == &quot;Scalping&quot; ? 9 : _effective_preset == &quot;Swing&quot; ? 20 : _effective_preset == &quot;Position&quot; ? 50 : ma_fast_len
+_preset_slow = _effective_preset == &quot;Scalping&quot; ? 21 : _effective_preset == &quot;Swing&quot; ? 50 : _effective_preset == &quot;Position&quot; ? 200 : ma_slow_len
+_preset_rsi = _effective_preset == &quot;Scalping&quot; ? 7 : _effective_preset == &quot;Swing&quot; ? 14 : _effective_preset == &quot;Position&quot; ? 21 : rsi_len
+_preset_adx = _effective_preset == &quot;Scalping&quot; ? 10 : _effective_preset == &quot;Swing&quot; ? 14 : _effective_preset == &quot;Position&quot; ? 20 : adx_len
+_preset_wave = _effective_preset == &quot;Scalping&quot; ? 1.0 : _effective_preset == &quot;Swing&quot; ? 1.5 : _effective_preset == &quot;Position&quot; ? 2.5 : wave_intensity
+
+// Use preset values
+ma_fast_len_eff = _preset_fast
+ma_slow_len_eff = _preset_slow
+rsi_len_eff = _preset_rsi
+adx_len_eff = _preset_adx
+wave_intensity_eff = _preset_wave
+
+// ─── CALCULATIONS ──────────────────────────────────────────────
+
+// STEP 1: MA Crossover
+ma_fast = ta.sma(close, ma_fast_len_eff)
+ma_slow = ta.sma(close, ma_slow_len_eff)
+ma_diff_pct = (ma_fast - ma_slow) / ma_slow * 100
+
+base_trend = ma_diff_pct &gt; 0.5 ? 1 : ma_diff_pct &lt; -0.5 ? -1 : 0
+
+// STEP 2: Volume Confirmation
+avg_volume = ta.sma(volume, 20)
+volume_ratio = avg_volume &gt; 0 ? volume / avg_volume : 1.0
+
+volume_bonus = volume_ratio &gt; 2.0 ? 15 : volume_ratio &gt; 1.5 ? 10 : volume_ratio &gt; 1.2 ? 5 : volume_ratio &lt; 0.5 ? -10 : volume_ratio &lt; 0.8 ? -5 : 0
+
+// STEP 3: Momentum Check
+momentum_pct = ma_fast &gt; 0 ? (close - ma_fast) / ma_fast * 100 : 0
+momentum_bonus = math.abs(momentum_pct) &gt; 3 ? 10 : math.abs(momentum_pct) &gt; 1.5 ? 5 : math.abs(momentum_pct) &lt; 0.5 ? -5 : 0
+
+// Base strength
+base_strength = math.abs(ma_diff_pct) * 15
+total_strength_raw = base_strength + volume_bonus + momentum_bonus
+total_strength = math.min(100, math.max(0, total_strength_raw))
+
+// STEP 4: RSI
+rsi_value = ta.rsi(close, rsi_len_eff)
+
+rsi_bonus = 0
+if rsi_value &gt;= rsi_ob
+    rsi_bonus := base_trend == 1 ? -10 : base_trend == -1 ? 15 : 0
+else if rsi_value &lt;= rsi_os
+    rsi_bonus := base_trend == -1 ? -10 : base_trend == 1 ? 15 : 0
+else if rsi_value &gt;= 60
+    rsi_bonus := base_trend == 1 ? 5 : base_trend == -1 ? -5 : 0
+else if rsi_value &lt;= 40
+    rsi_bonus := base_trend == -1 ? 5 : base_trend == 1 ? -5 : 0
+else
+    rsi_bonus := 0
+
+// STEP 5: ADX
+[diplus, diminus, adx_value] = ta.dmi(adx_len_eff, adx_len_eff)
+
+adx_direction = diplus &gt; diminus ? &quot;bullish&quot; : diplus &lt; diminus ? &quot;bearish&quot; : &quot;neutral&quot;
+adx_bonus = 0
+if adx_value &gt;= 25
+    if adx_direction == &quot;bullish&quot; and base_trend == 1
+        adx_bonus := 15
+    else if adx_direction == &quot;bearish&quot; and base_trend == -1
+        adx_bonus := 15
+    else if adx_direction != &quot;neutral&quot; and base_trend == 0
+        adx_bonus := 5
+    else
+        adx_bonus := -5
+else if adx_value &gt;= 15
+    adx_bonus := 0
+else
+    adx_bonus := -15
+
+// STEP 6: MACD
+[macd_line, macd_signal_line, macd_hist] = ta.macd(close, macd_fast, macd_slow, macd_signal_len)
+
+macd_cross_up = ta.crossover(macd_line, macd_signal_line)
+macd_cross_down = ta.crossunder(macd_line, macd_signal_line)
+macd_crossover = macd_cross_up ? &quot;bullish&quot; : macd_cross_down ? &quot;bearish&quot; : &quot;none&quot;
+
+macd_trend = macd_line &gt; macd_signal_line and macd_line &gt; 0 ? &quot;strong_bullish&quot; : macd_line &gt; macd_signal_line ? &quot;bullish&quot; : macd_line &lt; macd_signal_line and macd_line &lt; 0 ? &quot;strong_bearish&quot; : macd_line &lt; macd_signal_line ? &quot;bearish&quot; : &quot;neutral&quot;
+
+macd_bonus = 0
+if macd_trend == &quot;strong_bullish&quot; and base_trend == 1
+    macd_bonus := 15
+else if macd_trend == &quot;bullish&quot; and base_trend == 1
+    macd_bonus := 10
+else if macd_trend == &quot;strong_bearish&quot; and base_trend == -1
+    macd_bonus := 15
+else if macd_trend == &quot;bearish&quot; and base_trend == -1
+    macd_bonus := 10
+else if macd_trend == &quot;neutral&quot; and base_trend == 0
+    macd_bonus := 3
+else
+    macd_bonus := -10
+
+// STEP 7: ATR
+atr_value = ta.atr(14)
+atr_pct = atr_value / close * 100
+
+atr_bonus = 0
+if atr_pct &gt; 5.0
+    atr_bonus := -15
+else if atr_pct &gt; 3.0
+    atr_bonus := -8
+else if atr_pct &lt; 1.0
+    atr_bonus := 3
+else
+    atr_bonus := 0
+
+atr_trend = atr_value &gt; atr_value[1] ? &quot;rising&quot; : atr_value &lt; atr_value[1] ? &quot;falling&quot; : &quot;stable&quot;
+
+if atr_trend == &quot;rising&quot; and base_trend != 0
+    atr_bonus := atr_bonus - 3
+else if atr_trend == &quot;falling&quot; and base_trend != 0
+    atr_bonus := atr_bonus + 2
+
+// STEP 8: Bollinger Bands
+bb_basis = ta.sma(close, bb_len)
+bb_dev = bb_mult * ta.stdev(close, bb_len)
+bb_upper = bb_basis + bb_dev
+bb_lower = bb_basis - bb_dev
+
+bb_range = bb_upper - bb_lower
+bb_percent_b = bb_range &gt; 0 ? (close - bb_lower) / bb_range : 0.5
+bb_bandwidth = bb_basis &gt; 0 ? bb_range / bb_basis * 100 : 0
+
+bb_squeeze = bb_bandwidth &lt; 3 ? &quot;extreme&quot; : bb_bandwidth &lt; 5 ? &quot;tight&quot; : bb_bandwidth &gt; 10 ? &quot;expanding&quot; : &quot;normal&quot;
+
+bb_bonus = 0
+if bb_percent_b &gt;= 1.0 or bb_percent_b &lt;= 0.0
+    bb_bonus := -8
+else if bb_percent_b &gt;= 0.85 or bb_percent_b &lt;= 0.15
+    bb_bonus := -3
+
+if bb_squeeze == &quot;extreme&quot; or bb_squeeze == &quot;tight&quot;
+    bb_bonus := bb_bonus - 5
+else if bb_squeeze == &quot;expanding&quot; and base_trend != 0
+    bb_bonus := bb_bonus + 4
+
+if (base_trend == 1 and bb_percent_b &gt; 0.6) or (base_trend == -1 and bb_percent_b &lt; 0.4)
+    bb_bonus := bb_bonus + 3
+
+// STEP 9: Stochastic Oscillator
+stoch_lowest = ta.lowest(low, stoch_k_len)
+stoch_highest = ta.highest(high, stoch_k_len)
+stoch_range = stoch_highest - stoch_lowest
+stoch_k_raw = stoch_range &gt; 0 ? 100 * (close - stoch_lowest) / stoch_range : 50
+stoch_k = ta.sma(stoch_k_raw, stoch_smooth)
+stoch_d = ta.sma(stoch_k, stoch_d_len)
+
+stoch_cross_up = ta.crossover(stoch_k, stoch_d)
+stoch_cross_down = ta.crossunder(stoch_k, stoch_d)
+stoch_crossover = stoch_cross_up ? &quot;bullish&quot; : stoch_cross_down ? &quot;bearish&quot; : &quot;none&quot;
+
+stoch_signal = stoch_k &gt;= 80 ? &quot;overbought&quot; : stoch_k &lt;= 20 ? &quot;oversold&quot; : stoch_k &gt;= 60 ? &quot;bullish&quot; : stoch_k &lt;= 40 ? &quot;bearish&quot; : &quot;neutral&quot;
+
+stoch_bonus = 0
+if stoch_signal == &quot;overbought&quot; and base_trend == 1
+    stoch_bonus := -4
+else if stoch_signal == &quot;oversold&quot; and base_trend == -1
+    stoch_bonus := -4
+else if stoch_signal == &quot;neutral&quot;
+    stoch_bonus := 2
+else if (base_trend == 1 and stoch_k &gt; 50) or (base_trend == -1 and stoch_k &lt; 50)
+    stoch_bonus := 3
+else if (base_trend == 1 and stoch_k &lt; 30) or (base_trend == -1 and stoch_k &gt; 70)
+    stoch_bonus := -4
+
+if stoch_cross_up and (base_trend == 1 or base_trend == 0)
+    stoch_bonus := stoch_bonus + 3
+else if stoch_cross_down and (base_trend == -1 or base_trend == 0)
+    stoch_bonus := stoch_bonus + 3
+
+// ─── AGGREGATE: Total Strength ─────────────────────────────────
+
+total_strength := math.min(100, math.max(0, total_strength + rsi_bonus + adx_bonus + macd_bonus + atr_bonus + bb_bonus + stoch_bonus))
+
+// ─── Synergy Bonus ─────────────────────────────────────────────
+
+agree_count = 0
+if base_trend == 1 and rsi_value &gt;= 50
+    agree_count := agree_count + 1
+else if base_trend == -1 and rsi_value &lt;= 50
+    agree_count := agree_count + 1
+
+if (base_trend == 1 and adx_direction == &quot;bullish&quot;) or (base_trend == -1 and adx_direction == &quot;bearish&quot;)
+    agree_count := agree_count + 1
+
+macd_agrees = (base_trend == 1 and (macd_trend == &quot;strong_bullish&quot; or macd_trend == &quot;bullish&quot;)) or (base_trend == -1 and (macd_trend == &quot;strong_bearish&quot; or macd_trend == &quot;bearish&quot;))
+if macd_agrees
+    agree_count := agree_count + 1
+
+if atr_pct &lt;= 3.0 and base_trend != 0
+    agree_count := agree_count + 1
+
+if (base_trend == 1 and bb_percent_b &gt; 0.5) or (base_trend == -1 and bb_percent_b &lt; 0.5)
+    agree_count := agree_count + 1
+
+if (base_trend == 1 and stoch_k &gt; 50) or (base_trend == -1 and stoch_k &lt; 50)
+    agree_count := agree_count + 1
+
+synergy_bonus = agree_count &gt;= 4 ? 10 : 0
+
+// ─── Confirmation Count &amp; Confidence Floor ──────────────────────
+
+confirmation_count = 0
+if rsi_bonus &gt;= 0
+    confirmation_count := confirmation_count + 1
+if adx_bonus &gt;= 0
+    confirmation_count := confirmation_count + 1
+if macd_bonus &gt;= 0
+    confirmation_count := confirmation_count + 1
+if atr_bonus &gt;= 0
+    confirmation_count := confirmation_count + 1
+if bb_bonus &gt;= 0
+    confirmation_count := confirmation_count + 1
+if stoch_bonus &gt;= 0
+    confirmation_count := confirmation_count + 1
+
+if confirmation_count &gt;= 3 and base_trend != 0
+    total_strength := math.min(100, total_strength + 10)
+if confirmation_count &gt;= 5 and base_trend != 0
+    total_strength := math.min(100, total_strength + 15)
+
+// ─── Zone Calculation ─────────────────────────────────────────────
+
+zone_color_val = base_trend == 1 ? (total_strength &gt;= 70 ? 2 : 1) : base_trend == -1 ? (total_strength &gt;= 70 ? -2 : -1) : 0
+
+// ─── MULTI-TIMEFRAME (MTF) ANALYSIS ──────────────────────────────
+// Higher timeframe trend context for intraday traders
+// v3.2: Split request.security() calls — ta.dmi() returns a tuple and can&#x27;t be nested
+htf_ma_fast = request.security(syminfo.tickerid, htf_timeframe, ta.sma(close, ma_fast_len_eff))
+htf_ma_slow = request.security(syminfo.tickerid, htf_timeframe, ta.sma(close, ma_slow_len_eff))
+htf_rsi = request.security(syminfo.tickerid, htf_timeframe, ta.rsi(close, rsi_len_eff))
+[htf_diplus, htf_diminus, htf_adx_val] = request.security(syminfo.tickerid, htf_timeframe, ta.dmi(adx_len_eff, adx_len_eff))
+htf_ma_diff = (htf_ma_fast - htf_ma_slow) / htf_ma_slow * 100
+htf_base_trend = htf_ma_diff &gt; 0.5 ? 1 : htf_ma_diff &lt; -0.5 ? -1 : 0
+htf_strength = math.min(100, math.abs(htf_ma_diff) * 15 + 30)
+
+htf_trend_text = htf_base_trend == 1 ? &quot;HTF Rising Tide&quot; : htf_base_trend == -1 ? &quot;HTF Undertow&quot; : &quot;HTF Calm&quot;
+htf_trend_emoji = htf_base_trend == 1 ? &quot;🌊&quot; : htf_base_trend == -1 ? &quot;🌀&quot; : &quot;~&quot;
+
+// v3.2: Dynamic HTF background tint transparency based on HTF strength
+// Stronger HTF trend = more visible tint (but still subtle: 88-95% transparency)
+htf_tint_transp = htf_base_trend == 0 ? 95 : math.max(88, 95 - math.round(htf_strength / 12))
+htf_bg_color = htf_base_trend == 1 ? color.new(#06b6d4, htf_tint_transp) : htf_base_trend == -1 ? color.new(#6366f1, htf_tint_transp) : color.new(#64748b, 95)
+
+// HTF background tint
+bgcolor(show_mtf_bg and use_mtf ? htf_bg_color : na, title=&quot;HTF Trend Background&quot;)
+
+// HTF Label (separate from main label)
+var label htf_label = na
+if show_mtf_label and use_mtf and barstate.islast
+    htf_label_text = htf_trend_emoji + &quot; &quot; + htf_trend_text + &quot; (&quot; + str.tostring(math.round(htf_strength)) + &quot;%)&quot;
+    if na(htf_label)
+        htf_label := label.new(bar_index - 30, high + atr_value * 2.5, htf_label_text, color=color.new(htf_base_trend == 1 ? #06b6d4 : htf_base_trend == -1 ? #6366f1 : #64748b, 70), textcolor=color.white, style=label.style_label_left, size=size.small)
+    else
+        label.set_text(htf_label, htf_label_text)
+        label.set_color(htf_label, color.new(htf_base_trend == 1 ? #06b6d4 : htf_base_trend == -1 ? #6366f1 : #64748b, 70))
+        label.set_xy(htf_label, bar_index - 30, high + atr_value * 2.5)
+
+// ─── Confidence Calculation (internal only, not displayed) ──────
+
+confidence_raw = math.min(100, math.max(0, total_strength))
+
+if bar_index &gt;= 100
+    confidence_raw := confidence_raw + 5
+else if bar_index &lt; 50
+    confidence_raw := confidence_raw - 10
+
+if volume_ratio &gt; 1.5
+    confidence_raw := confidence_raw + 5
+else if volume_ratio &lt; 0.8
+    confidence_raw := confidence_raw - 10
+
+if rsi_value &gt;= rsi_ob or rsi_value &lt;= rsi_os
+    if (rsi_value &gt;= rsi_ob and base_trend == -1) or (rsi_value &lt;= rsi_os and base_trend == 1)
+        confidence_raw := confidence_raw + 15
+    else
+        confidence_raw := confidence_raw - 5
+
+if adx_value &gt;= 25
+    confidence_raw := confidence_raw + 10
+else if adx_value &lt; 10
+    confidence_raw := confidence_raw - 15
+
+if (macd_trend == &quot;strong_bullish&quot; and base_trend == 1) or (macd_trend == &quot;strong_bearish&quot; and base_trend == -1)
+    confidence_raw := confidence_raw + 8
+else if macd_cross_up and (base_trend == 1 or base_trend == 0)
+    confidence_raw := confidence_raw + 5
+else if macd_cross_down and (base_trend == -1 or base_trend == 0)
+    confidence_raw := confidence_raw + 5
+
+if atr_pct &gt; 5.0
+    confidence_raw := confidence_raw - 12
+else if atr_pct &gt; 3.0
+    confidence_raw := confidence_raw - 6
+else if atr_pct &lt; 1.0
+    confidence_raw := confidence_raw + 3
+
+if bb_percent_b &gt;= 1.0 or bb_percent_b &lt;= 0.0
+    confidence_raw := confidence_raw - 8
+else if bb_percent_b &gt;= 0.85 or bb_percent_b &lt;= 0.15
+    confidence_raw := confidence_raw - 3
+
+if bb_squeeze == &quot;extreme&quot; or bb_squeeze == &quot;tight&quot;
+    confidence_raw := confidence_raw - 5
+else if bb_squeeze == &quot;expanding&quot; and base_trend != 0
+    confidence_raw := confidence_raw + 4
+
+if (base_trend == 1 and bb_percent_b &gt; 0.6) or (base_trend == -1 and bb_percent_b &lt; 0.4)
+    confidence_raw := confidence_raw + 3
+
+if stoch_signal == &quot;overbought&quot; and base_trend == 1
+    confidence_raw := confidence_raw - 4
+else if stoch_signal == &quot;oversold&quot; and base_trend == -1
+    confidence_raw := confidence_raw - 4
+else if stoch_signal == &quot;neutral&quot;
+    confidence_raw := confidence_raw + 2
+
+if (base_trend == 1 and stoch_k &gt; 50) or (base_trend == -1 and stoch_k &lt; 50)
+    confidence_raw := confidence_raw + 3
+else if (base_trend == 1 and stoch_k &lt; 30) or (base_trend == -1 and stoch_k &gt; 70)
+    confidence_raw := confidence_raw - 4
+
+if (stoch_cross_up and (base_trend == 1 or base_trend == 0)) or (stoch_cross_down and (base_trend == -1 or base_trend == 0))
+    confidence_raw := confidence_raw + 3
+
+confidence_raw := confidence_raw + synergy_bonus
+
+if confirmation_count &gt;= 3 and base_trend != 0
+    confidence_raw := math.max(confidence_raw, 25)
+if confirmation_count &gt;= 5 and base_trend != 0
+    confidence_raw := math.max(confidence_raw, 50)
+
+confidence_raw := math.min(100, math.max(0, confidence_raw))
+
+// Confidence smoothing
+confidence_smoothed = use_confidence_smoothing ? ta.ema(confidence_raw, confidence_ema_len) : confidence_raw
+confidence_change = confidence_smoothed - nz(confidence_smoothed[1], confidence_smoothed)
+confidence_limited = confidence_change &gt; max_conf_change ? confidence_smoothed[1] + max_conf_change : confidence_change &lt; -max_conf_change ? confidence_smoothed[1] - max_conf_change : confidence_smoothed
+confidence = math.min(100, math.max(0, confidence_limited))
+
+// ─── WAVE VISUALIZATION ─────────────────────────────────────────
+// The core innovation: ocean wave visual instead of boring bgcolor zones
+
+// Compute wave boundaries based on price and trend strength
+// Wave height proportional to trend strength — bigger waves = stronger trend
+wave_height = atr_value * wave_intensity_eff * (total_strength / 100.0 + 0.3)
+
+// Smooth the wave boundaries for organic flow
+wave_top_raw = close + wave_height
+wave_bottom_raw = close - wave_height
+
+// Heavy smoothing for wave-like curves (not jagged)
+wave_top = ta.ema(wave_top_raw, 8)
+wave_bottom = ta.ema(wave_bottom_raw, 8)
+
+// Secondary wave layer (deeper, slower — like ocean depth)
+wave_top_deep_raw = close + wave_height * 1.6
+wave_bottom_deep_raw = close - wave_height * 1.6
+wave_top_deep = ta.ema(wave_top_deep_raw, 15)
+wave_bottom_deep = ta.ema(wave_bottom_deep_raw, 15)
+
+// Tertiary wave layer (deepest, slowest — like ocean floor)
+wave_top_floor_raw = close + wave_height * 2.4
+wave_bottom_floor_raw = close - wave_height * 2.4
+wave_top_floor = ta.ema(wave_top_floor_raw, 25)
+wave_bottom_floor = ta.ema(wave_bottom_floor_raw, 25)
+
+// Determine wave colors based on trend direction
+bullish_color_1 = color.new(color_bullish_1, 70)  // Surface wave — more visible
+bullish_color_2 = color.new(color_bullish_2, 85)  // Deep wave — more transparent
+bearish_color_1 = color.new(color_bearish_1, 70)
+bearish_color_2 = color.new(color_bearish_2, 85)
+neutral_color_1 = color.new(color_neutral_1, 75)
+neutral_color_2 = color.new(color_neutral_2, 88)
+
+// Select colors based on current trend
+// With smooth color transitions — gradually shift between trend colors
+raw_surface_color = base_trend == 1 ? bullish_color_1 : base_trend == -1 ? bearish_color_1 : neutral_color_1
+raw_deep_color = base_trend == 1 ? bullish_color_2 : base_trend == -1 ? bearish_color_2 : neutral_color_2
+raw_floor_color = color.new(base_trend == 1 ? color_bullish_2 : base_trend == -1 ? color_bearish_2 : color_neutral_2, 92)
+
+// Color transition smoothing: use EMA of trend direction to create gradual shifts
+// When transition_factor is between -0.3 and 0.3, we&#x27;re in a transition zone
+transition_factor = use_color_transitions ? ta.ema(base_trend == 1 ? 1.0 : base_trend == -1 ? -1.0 : 0.0, 5) : (base_trend == 1 ? 1.0 : base_trend == -1 ? -1.0 : 0.0)
+
+// Blend colors based on transition factor
+surface_color = use_color_transitions ? 
+  (transition_factor &gt; 0.3 ? bullish_color_1 : transition_factor &lt; -0.3 ? bearish_color_1 : neutral_color_1) : 
+  raw_surface_color
+deep_color = use_color_transitions ? 
+  (transition_factor &gt; 0.3 ? bullish_color_2 : transition_factor &lt; -0.3 ? bearish_color_2 : neutral_color_2) : 
+  raw_deep_color
+
+// Floor colors (even more transparent)
+floor_color = use_color_transitions ?
+  (transition_factor &gt; 0.3 ? color.new(color_bullish_2, 92) : transition_factor &lt; -0.3 ? color.new(color_bearish_2, 92) : color.new(color_neutral_2, 92)) :
+  raw_floor_color
+
+// ─── PLOT WAVES ─────────────────────────────────────────────────
+
+// Surface wave (most visible, closest to price)
+p_top = plot(show_wave ? wave_top : na, title=&quot;Wave Surface Top&quot;, color=color.new(surface_color, 50), linewidth=1)
+p_bot = plot(show_wave ? wave_bottom : na, title=&quot;Wave Surface Bottom&quot;, color=color.new(surface_color, 50), linewidth=1)
+fill(p_top, p_bot, title=&quot;Wave Surface&quot;, color=surface_color)
+
+// Deep wave (larger, more transparent — gives depth)
+p_top_deep = plot(show_wave ? wave_top_deep : na, title=&quot;Wave Deep Top&quot;, color=color.new(deep_color, 60), linewidth=1)
+p_bot_deep = plot(show_wave ? wave_bottom_deep : na, title=&quot;Wave Deep Bottom&quot;, color=color.new(deep_color, 60), linewidth=1)
+fill(p_top_deep, p_bot_deep, title=&quot;Wave Deep&quot;, color=deep_color)
+
+// Floor wave (largest, most transparent — ocean floor)
+p_top_floor = plot(show_wave ? wave_top_floor : na, title=&quot;Wave Floor Top&quot;, color=color.new(floor_color, 70), linewidth=1)
+p_bot_floor = plot(show_wave ? wave_bottom_floor : na, title=&quot;Wave Floor Bottom&quot;, color=color.new(floor_color, 70), linewidth=1)
+fill(p_top_floor, p_bot_floor, title=&quot;Wave Floor&quot;, color=floor_color)
+
+// MA Lines (optional, off by default)
+plot(show_ma_lines ? ma_fast : na, &quot;MA Fast&quot;, color=color.new(#06b6d4, 20), linewidth=1)
+plot(show_ma_lines ? ma_slow : na, &quot;MA Slow&quot;, color=color.new(#6366f1, 20), linewidth=1)
+
+// ─── TREND LABEL (minimal, clean) ───────────────────────────────
+
+// Simple label — just direction, no numbers
+trend_emoji = base_trend == 1 ? &quot;🌊&quot; : base_trend == -1 ? &quot;🌀&quot; : &quot;~&quot;
+trend_text = base_trend == 1 ? (total_strength &gt;= 70 ? &quot;Rising Tide&quot; : &quot;Flowing Up&quot;) : base_trend == -1 ? (total_strength &gt;= 70 ? &quot;Undertow&quot; : &quot;Falling&quot;) : &quot;Calm Waters&quot;
+
+// v3.2: Label includes active preset name for Auto mode
+_preset_display = _effective_preset == &quot;Scalping&quot; ? &quot;⚡&quot; : _effective_preset == &quot;Swing&quot; ? &quot;📊&quot; : _effective_preset == &quot;Position&quot; ? &quot;🎯&quot; : &quot;&quot;
+if show_label and barstate.islast
+    label.new(bar_index, high + atr_value * 0.5, trend_emoji + &quot; &quot; + trend_text + (_effective_preset != &quot;Default&quot; ? &quot; &quot; + _preset_display : &quot;&quot;), color=color.new(base_trend == 1 ? #06b6d4 : base_trend == -1 ? #6366f1 : #64748b, 50), textcolor=color.white, style=label.style_label_down, size=size.small)
+
+// ─── 9-FACTOR TABLE ────────────────────────────────────────────
+// Shows each of the 9 factors with live status — proof that it&#x27;s really 9-in-1
+
+if show_factor_table and barstate.islast
+    // Calculate individual factor statuses
+    _ma_status = base_trend == 1 ? &quot;🟢 Bull&quot; : base_trend == -1 ? &quot;🔴 Bear&quot; : &quot;⚪ Neutral&quot;
+    _vol_status = volume_ratio &gt; 1.5 ? &quot;🟢 High&quot; : volume_ratio &lt; 0.8 ? &quot;🔴 Low&quot; : &quot;⚪ Normal&quot;
+    _rsi_status = rsi_value &gt;= rsi_ob ? &quot;🔴 Overbought&quot; : rsi_value &lt;= rsi_os ? &quot;🟢 Oversold&quot; : rsi_value &gt;= 50 ? &quot;🟢 Bullish&quot; : &quot;🔴 Bearish&quot;
+    _adx_status = adx_value &gt;= 25 ? (adx_direction == &quot;bullish&quot; ? &quot;🟢 Strong Bull&quot; : adx_direction == &quot;bearish&quot; ? &quot;🔴 Strong Bear&quot; : &quot;⚪ Neutral&quot;) : adx_value &gt;= 15 ? &quot;⚪ Weak&quot; : &quot;🔴 No Trend&quot;
+    _macd_status = macd_trend == &quot;strong_bullish&quot; ? &quot;🟢 Strong Bull&quot; : macd_trend == &quot;bullish&quot; ? &quot;🟢 Bull&quot; : macd_trend == &quot;strong_bearish&quot; ? &quot;🔴 Strong Bear&quot; : macd_trend == &quot;bearish&quot; ? &quot;🔴 Bear&quot; : &quot;⚪ Neutral&quot;
+    _atr_status = atr_pct &gt; 5.0 ? &quot;🔴 Very High&quot; : atr_pct &gt; 3.0 ? &quot;🟠 High&quot; : atr_pct &lt; 1.0 ? &quot;🟢 Low&quot; : &quot;⚪ Normal&quot;
+    _bb_status = bb_squeeze == &quot;extreme&quot; ? &quot;🔴 Squeeze&quot; : bb_squeeze == &quot;tight&quot; ? &quot;🟠 Tight&quot; : bb_squeeze == &quot;expanding&quot; ? &quot;🟢 Expanding&quot; : &quot;⚪ Normal&quot;
+    _stoch_status = stoch_signal == &quot;overbought&quot; ? &quot;🔴 Overbought&quot; : stoch_signal == &quot;oversold&quot; ? &quot;🟢 Oversold&quot; : stoch_signal == &quot;bullish&quot; ? &quot;🟢 Bullish&quot; : stoch_signal == &quot;bearish&quot; ? &quot;🔴 Bearish&quot; : &quot;⚪ Neutral&quot;
+    _synergy_status = agree_count &gt;= 5 ? &quot;🟢 Aligned (&quot; + str.tostring(agree_count) + &quot;/6)&quot; : agree_count &gt;= 4 ? &quot;🟢 Aligned (&quot; + str.tostring(agree_count) + &quot;/6)&quot; : &quot;⚪ Partial (&quot; + str.tostring(agree_count) + &quot;/6)&quot;
+    
+    var table factor_tbl = table.new(position.top_right, 3, 11, bgcolor=color.new(#1e293b, 15), border_width=1, border_color=color.new(#475569, 50), frame_color=color.new(#475569, 50), frame_width=1)
+    
+    // Header
+    table.cell(factor_tbl, 0, 0, &quot;🌊 9-Factor Analysis&quot;, text_color=color.white, text_size=size.small, bgcolor=color.new(#0f172a, 10))
+    table.cell(factor_tbl, 1, 0, &quot;Signal&quot;, text_color=color.white, text_size=size.small, bgcolor=color.new(#0f172a, 10))
+    table.cell(factor_tbl, 2, 0, &quot;Strength&quot;, text_color=color.white, text_size=size.small, bgcolor=color.new(#0f172a, 10))
+    
+    // 9 factors
+    table.cell(factor_tbl, 0, 1, &quot;1. MA Crossover (&quot; + str.tostring(ma_fast_len_eff) + &quot;/&quot; + str.tostring(ma_slow_len_eff) + &quot;)&quot;, text_color=#cbd5e1, text_size=size.tiny)
+    table.cell(factor_tbl, 1, 1, _ma_status, text_color=#e2e8f0, text_size=size.tiny)
+    table.cell(factor_tbl, 2, 1, str.tostring(math.round(math.abs(ma_diff_pct) * 15)), text_color=#e2e8f0, text_size=size.tiny)
+    
+    table.cell(factor_tbl, 0, 2, &quot;2. Volume (vs 20-avg)&quot;, text_color=#cbd5e1, text_size=size.tiny)
+    table.cell(factor_tbl, 1, 2, _vol_status, text_color=#e2e8f0, text_size=size.tiny)
+    table.cell(factor_tbl, 2, 2, str.tostring(math.round(volume_ratio * 100)) + &quot;%&quot;, text_color=#e2e8f0, text_size=size.tiny)
+    
+    table.cell(factor_tbl, 0, 3, &quot;3. RSI (&quot; + str.tostring(rsi_len_eff) + &quot;)&quot;, text_color=#cbd5e1, text_size=size.tiny)
+    table.cell(factor_tbl, 1, 3, _rsi_status, text_color=#e2e8f0, text_size=size.tiny)
+    table.cell(factor_tbl, 2, 3, str.tostring(math.round(rsi_value)), text_color=#e2e8f0, text_size=size.tiny)
+    
+    table.cell(factor_tbl, 0, 4, &quot;4. ADX (&quot; + str.tostring(adx_len_eff) + &quot;)&quot;, text_color=#cbd5e1, text_size=size.tiny)
+    table.cell(factor_tbl, 1, 4, _adx_status, text_color=#e2e8f0, text_size=size.tiny)
+    table.cell(factor_tbl, 2, 4, str.tostring(math.round(adx_value)), text_color=#e2e8f0, text_size=size.tiny)
+    
+    table.cell(factor_tbl, 0, 5, &quot;5. MACD (&quot; + str.tostring(macd_fast) + &quot;/&quot; + str.tostring(macd_slow) + &quot;)&quot;, text_color=#cbd5e1, text_size=size.tiny)
+    table.cell(factor_tbl, 1, 5, _macd_status, text_color=#e2e8f0, text_size=size.tiny)
+    table.cell(factor_tbl, 2, 5, str.tostring(math.round(macd_hist * 100) / 100), text_color=#e2e8f0, text_size=size.tiny)
+    
+    table.cell(factor_tbl, 0, 6, &quot;6. ATR Volatility&quot;, text_color=#cbd5e1, text_size=size.tiny)
+    table.cell(factor_tbl, 1, 6, _atr_status, text_color=#e2e8f0, text_size=size.tiny)
+    table.cell(factor_tbl, 2, 6, str.tostring(math.round(atr_pct * 100) / 100) + &quot;%&quot;, text_color=#e2e8f0, text_size=size.tiny)
+    
+    table.cell(factor_tbl, 0, 7, &quot;7. Bollinger Bands&quot;, text_color=#cbd5e1, text_size=size.tiny)
+    table.cell(factor_tbl, 1, 7, _bb_status, text_color=#e2e8f0, text_size=size.tiny)
+    table.cell(factor_tbl, 2, 7, str.tostring(math.round(bb_bandwidth * 100) / 100) + &quot;%&quot;, text_color=#e2e8f0, text_size=size.tiny)
+    
+    table.cell(factor_tbl, 0, 8, &quot;8. Stochastic&quot;, text_color=#cbd5e1, text_size=size.tiny)
+    table.cell(factor_tbl, 1, 8, _stoch_status, text_color=#e2e8f0, text_size=size.tiny)
+    table.cell(factor_tbl, 2, 8, str.tostring(math.round(stoch_k)) + &quot;/100&quot;, text_color=#e2e8f0, text_size=size.tiny)
+    
+    table.cell(factor_tbl, 0, 9, &quot;9. Synergy Bonus&quot;, text_color=#cbd5e1, text_size=size.tiny)
+    table.cell(factor_tbl, 1, 9, _synergy_status, text_color=#e2e8f0, text_size=size.tiny)
+    table.cell(factor_tbl, 2, 9, &quot;+&quot; + str.tostring(synergy_bonus), text_color=#e2e8f0, text_size=size.tiny)
+    
+    // Summary row
+    table.cell(factor_tbl, 0, 10, &quot;📋 TOTAL&quot;, text_color=color.white, text_size=size.tiny, bgcolor=color.new(#0f172a, 20))
+    table.cell(factor_tbl, 1, 10, base_trend == 1 ? &quot;🟢 BULLISH&quot; : base_trend == -1 ? &quot;🔴 BEARISH&quot; : &quot;⚪ NEUTRAL&quot;, text_color=color.white, text_size=size.tiny, bgcolor=color.new(#0f172a, 20))
+    table.cell(factor_tbl, 2, 10, str.tostring(math.round(total_strength)) + &quot;%&quot;, text_color=color.white, text_size=size.tiny, bgcolor=color.new(#0f172a, 20))
+
+// ─── ZONE CHANGE TRACKING ───────────────────────────────────────
+
+zone_changed = zone_color_val != nz(zone_color_val[1], zone_color_val)
+zone_to_bearish = zone_color_val &lt; 0 and nz(zone_color_val[1], 0) &gt;= 0
+zone_to_bullish = zone_color_val &gt; 0 and nz(zone_color_val[1], 0) &lt;= 0
+
+// ─── ALERTS (ocean-themed copy) ─────────────────────────────────
+
+alertcondition(zone_to_bullish, title=&quot;🌊 Tide Rising — Uptrend Detected&quot;, message=&quot;Ocean Wave: The tide is rising — bullish trend context detected&quot;)
+alertcondition(zone_to_bearish, title=&quot;🌀 Undertow — Downtrend Detected&quot;, message=&quot;Ocean Wave: Undertow pulling down — bearish trend context detected&quot;)
+alertcondition(zone_changed, title=&quot;🔄 Tide Shift — Trend Change&quot;, message=&quot;Ocean Wave: The tide is shifting — trend context changed&quot;)
+alertcondition(confidence &gt;= 70 and confidence[1] &lt; 70, title=&quot;⚡ Strong Current — High Confidence&quot;, message=&quot;Ocean Wave: Strong current detected — high confidence trend&quot;)
+alertcondition(total_strength &gt;= 80 and total_strength[1] &lt; 80, title=&quot;🔥 High Energy — Strong Trend&quot;, message=&quot;Ocean Wave: High energy in the market — strong trend detected&quot;)
+alertcondition(agree_count &gt;= 4 and agree_count[1] &lt; 4, title=&quot;🌊 Wave Alignment — 4+ Factors Agree&quot;, message=&quot;Ocean Wave: Multiple factors aligned — wave convergence detected&quot;)
+
+// MTF alerts
+htf_trend_changed = htf_base_trend != nz(htf_base_trend[1], htf_base_trend)
+alertcondition(use_mtf and htf_trend_changed, title=&quot;📊 HTF Trend Change — Higher Timeframe Shift&quot;, message=&quot;Ocean Wave: Higher timeframe trend has changed — check your position against the bigger picture&quot;)
+alertcondition(use_mtf and htf_base_trend == 1 and htf_base_trend[1] &lt;= 0, title=&quot;📊 HTF Tide Rising — Daily Bullish&quot;, message=&quot;Ocean Wave: Higher timeframe turning bullish — trend alignment opportunity&quot;)
+alertcondition(use_mtf and htf_base_trend == -1 and htf_base_trend[1] &gt;= 0, title=&quot;📊 HTF Undertow — Daily Bearish&quot;, message=&quot;Ocean Wave: Higher timeframe turning bearish — caution advised&quot;)
+
+// Confidence threshold alerts (configurable)
+conf_thresh = input.int(50, &quot;Alert: Confidence Threshold&quot;, minval=10, maxval=90, group=&quot;Algorithm&quot;)
+alertcondition(confidence &gt;= conf_thresh and confidence[1] &lt; conf_thresh, title=&quot;Confidence Cross Up&quot;, message=&quot;Ocean Wave: Confidence crossed above threshold&quot;)
+alertcondition(confidence &lt; conf_thresh and confidence[1] &gt;= conf_thresh, title=&quot;Confidence Cross Down&quot;, message=&quot;Ocean Wave: Confidence crossed below threshold&quot;)</script>
 </body>
 </html>
