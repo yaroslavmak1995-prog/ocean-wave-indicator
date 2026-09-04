@@ -1,15 +1,26 @@
-# 🌊 Ocean Wave — Trend Visualizer
+# 🌊 Ocean Wave — 9-in-1 Trend Visualizer
 
-> **See the market like ocean waves.**
+> **See the market like ocean waves. Stop reading 9 indicators — read the ocean.**
 
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 [![GitHub stars](https://img.shields.io/github/stars/yaroslavmak1995-prog/ocean-wave-indicator?style=social)](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/stargazers)
 [![GitHub last commit](https://img.shields.io/github/last-commit/yaroslavmak1995-prog/ocean-wave-indicator)](https://github.com/yaroslavmak1995-prog/ocean-wave-indicator/commits)
 [![Version](https://img.shields.io/badge/Version-3.2%20%F0%9F%8C%8A-cyan)](pine/ocean-wave-v3.2.pine)
 
-Ocean Wave turns price action into flowing ocean waves. No patterns to learn. No signals to chase. Just the natural rhythm of the market, visualized. 9 technical factors fused into 1 seamless visual — you see the result, not the math.
+---
 
-**Keywords:** ocean wave, trend visualizer, wave chart, trading visualization, TradingView indicator, trend flow, visual trading, momentum visualization, ocean trading, wave indicator
+## 🌊 What is Ocean Wave?
+
+Ocean Wave turns price action into flowing ocean waves. **No patterns to learn. No signals to chase.** Just the natural rhythm of the market, visualized.
+
+**9 technical factors** — MA, Volume, RSI, ADX, MACD, ATR, Bollinger Bands, Stochastic, and Synergy — are fused into **1 seamless visual**. You see the result, not the math.
+
+| Without Ocean Wave | With Ocean Wave |
+|---|---|
+| 📊 9 indicators on your chart | 🌊 1 ocean wave visual |
+| 🔴🟢🔴🟢 Conflicting signals | 🌊 Clear trend direction |
+| 📈 Years to learn patterns | ⚡ Instant understanding |
+| 🤯 Overwhelm & indecision | 🧘 Calm, confident decisions |
 
 ---
 
@@ -20,8 +31,6 @@ Ocean Wave turns price action into flowing ocean waves. No patterns to learn. No
 3. **See** ocean waves — cyan = rising tide, indigo = undertow, slate = calm waters
 
 That's it. You now see the market's flow at a glance.
-
----
 
 > ### ⭐ **Star this repo** — it helps other traders discover Ocean Wave!
 
@@ -42,19 +51,19 @@ The market isn't a bar chart — it's a flow. Ocean Wave visualizes that flow as
 
 Inside Ocean Wave, 9 technical factors work together — invisibly:
 
-| Factor | What It Measures |
-|--------|-----------------|
-| MA Crossover (20/50) | Base trend direction |
-| Volume Confirmation | Signal strength |
-| Momentum Check | Price vs MA position |
-| RSI (14) | Overbought/oversold |
-| ADX (14) | Trend strength |
-| MACD (12/26/9) | Momentum crossover |
-| ATR (14) | Volatility assessment |
-| Bollinger Bands (20, 2σ) | Price position, squeeze |
-| Stochastic (14/3/3) | Momentum oscillator |
+| # | Factor | What It Measures |
+|---|--------|-----------------|
+| 1 | MA Crossover (20/50) | Base trend direction |
+| 2 | Volume Confirmation | Signal strength |
+| 3 | Momentum Check | Price vs MA position |
+| 4 | RSI (14) | Overbought/oversold |
+| 5 | ADX (14) | Trend strength |
+| 6 | MACD (12/26/9) | Momentum crossover |
+| 7 | ATR (14) | Volatility assessment |
+| 8 | Bollinger Bands (20, 2σ) | Price position, squeeze |
+| 9 | Stochastic (14/3/3) | Momentum oscillator |
 
-You don't need to read 9 indicators. The ocean does it for you.
+**You don't need to read 9 indicators. The ocean does it for you.**
 
 ### Output
 
@@ -65,11 +74,11 @@ You don't need to read 9 indicators. The ocean does it for you.
 - **9-Factor Table** (optional, ON by default) — each factor with live signal (🟢/🔴/⚪) and value, so you always know WHY the wave looks the way it does
 - **Clean chart mode** — disable table for pure wave visual
 
+---
+
 ## 🚀 Installation
 
 **⚡ 1-minute install guide:** See [`docs/1-minute-install.md`](docs/1-minute-install.md) for step-by-step with screenshots.
-
-## 🚀 Installation (TradingView)
 
 ### v3.2 — Wave Visualizer + Auto-Preset + Dynamic HTF (latest)
 
@@ -80,6 +89,9 @@ You don't need to read 9 indicators. The ocean does it for you.
 5. Preset auto-detects from chart timeframe (or choose manually: Scalping / Swing / Position)
 6. Enable MTF mode to see higher timeframe trend with dynamic tint intensity
 
+<details>
+<summary>📦 Previous versions</summary>
+
 ### v3.1 — Wave Visualizer + MTF + Presets
 
 ### v3.0 — Wave Visualizer (stable)
@@ -87,6 +99,9 @@ You don't need to read 9 indicators. The ocean does it for you.
 ### v2.1 — Classic Zones (legacy)
 
 The previous version with colored zones (green/yellow/red), factor tables, and confidence percentages. Available as `pine/ocean-wave-v2.1.pine` (full) and `pine/ocean-wave-lite-v2.1.pine` (lite).
+</details>
+
+---
 
 ## 📁 Repository Structure
 
@@ -118,6 +133,8 @@ ocean-wave-indicator/
     └── example-configs.md
 ```
 
+---
+
 ## 🔔 Alerts
 
 Ocean Wave includes ocean-themed alerts:
@@ -134,6 +151,8 @@ Ocean Wave includes ocean-themed alerts:
 | 📊 HTF Tide Rising | Higher timeframe turning bullish |
 | 📊 HTF Undertow | Higher timeframe turning bearish |
 
+---
+
 ## 🎨 Customization
 
 - **Wave Intensity** — control wave height (0.5x to 3.0x)
@@ -146,9 +165,13 @@ Ocean Wave includes ocean-themed alerts:
 - **MA Lines** — optional, off by default for clean visual
 - **Trend Label** — minimal emoji + text, no numbers
 
+---
+
 ## 📊 Backtest Results
 
 Detailed backtest results available in [docs/backtest-results.md](docs/backtest-results.md). Ocean Wave is a **visualization tool**, not a signal service. It shows you the market's flow — it doesn't tell you when to buy or sell.
+
+---
 
 ## 🤝 Contributing
 
@@ -159,9 +182,13 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md). Areas of interest
 - Multi-timeframe analysis
 - Performance optimizations
 
+---
+
 ## 📄 License
 
 Mozilla Public License 2.0 — use freely, modify, share.
+
+---
 
 ## 🔗 Links
 
@@ -173,8 +200,6 @@ Mozilla Public License 2.0 — use freely, modify, share.
 
 ---
 
-Built with ❤️ by the Ocean View team. Not financial advice. DYOR.
-
 ## 📋 Roadmap
 
 - ✅ v1.0 — Initial 9-factor indicator
@@ -183,3 +208,7 @@ Built with ❤️ by the Ocean View team. Not financial advice. DYOR.
 - ✅ v3.1 — Multi-timeframe mode + preset dropdowns + smooth color transitions
 - ✅ v3.2 — Auto-preset detection + dynamic HTF tint + combined security calls + alert summary
 - 🔵 v4.0 — Animated wave transitions + true color interpolation
+
+---
+
+Built with ❤️ by the Ocean Wave team. Not financial advice. DYOR.
